@@ -18,7 +18,10 @@
 
     <!-- ── Pro lock overlay ───────────────────────────────────────────────── -->
     @if (!isPro()) {
-      <div class="qr-overlay" aria-label="QR code locked — upgrade to Pro to unlock">
+      <div
+        class="qr-overlay"
+        aria-label="QR code locked — upgrade to Pro to unlock"
+      >
 
         <div class="qr-overlay__icon" aria-hidden="true">
           <!-- Lock icon -->
@@ -28,18 +31,9 @@
           </svg>
         </div>
 
-        <p class="qr-overlay__label">QR codes are a<br><strong>Pro feature</strong></p>
-
-        <a
-          class="qr-overlay__cta"
-          [routerLink]="['/pro', 'upgrade']"
-          aria-label="Upgrade to Pro to unlock QR codes"
-        >
-          <svg class="qr-overlay__cta-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.83-4.401z" clip-rule="evenodd"/>
-          </svg>
-          Upgrade to Pro
-        </a>
+        <p class="qr-overlay__label">
+          QR codes are a<br><strong>Pro feature</strong>
+        </p>
 
       </div>
     }

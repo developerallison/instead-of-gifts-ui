@@ -179,6 +179,7 @@
           <div class="field">
             <label class="field__label">Cover image</label>
             <app-image-upload
+              [existingUrl]="defaultProCoverImageUrl"
               (fileReady)="onCoverFileReady($event)"
               (removed)="onCoverRemoved()"
             />

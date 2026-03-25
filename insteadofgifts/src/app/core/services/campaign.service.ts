@@ -6,6 +6,8 @@ import { generateSlug, appendRandomSuffix } from '../utils/slug.util';
 
 /** Maximum retries when a generated slug is already taken. */
 const MAX_SLUG_RETRIES = 5;
+const DEFAULT_PRO_COVER_IMAGE_URL =
+  'https://images.unsplash.com/photo-1596419125026-0d4db48bc7de?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
 export interface UpdateCampaignInput {
   title: string;
@@ -161,7 +163,9 @@ export class CampaignService {
         : null,
       deadline:        input.deadline || null,
       custom_message:  input.customMessage?.trim() || null,
-      cover_image_url: null as string | null,
+      cover_image_url: isProCampaign && !input.coverImageFile
+        ? DEFAULT_PRO_COVER_IMAGE_URL
+        : null as string | null,
       slug,
       created_by:      user.id,
       is_active:       true,

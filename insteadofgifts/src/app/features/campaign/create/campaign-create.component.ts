@@ -55,6 +55,9 @@ export interface CreateCampaignForm {
   styleUrl:    './campaign-create.component.scss',
 })
 export class CampaignCreateComponent implements OnInit, OnDestroy {
+  readonly defaultProCoverImageUrl =
+    'https://images.unsplash.com/photo-1596419125026-0d4db48bc7de?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
   private readonly fb          = inject(FormBuilder);
   private readonly router      = inject(Router);
   private readonly campaignSvc = inject(CampaignService);
