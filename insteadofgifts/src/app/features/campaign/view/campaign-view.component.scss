@@ -252,6 +252,11 @@
   white-space: pre-line;
 }
 
+.custom-message--fund-use {
+  border-left-color: var(--color-brand-green, #95C476);
+  background: var(--color-pale-green, #EAF4DF);
+}
+
 // Meta row (organiser / deadline)
 
 .campaign-meta {

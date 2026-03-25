@@ -98,6 +98,11 @@
             </div>
             <blockquote class="custom-message__text">{{ c.customMessage }}</blockquote>
           </div>
+        } @else if (!c.isPro && c.fundUse) {
+          <!-- Free: preset copy by fund-use choice -->
+          <div class="custom-message custom-message--fund-use">
+            <blockquote class="custom-message__text">{{ fundUseDefaultMessage(c.fundUse) }}</blockquote>
+          </div>
         }
         @if (c.description) {
           <p class="campaign-description">{{ c.description }}</p>

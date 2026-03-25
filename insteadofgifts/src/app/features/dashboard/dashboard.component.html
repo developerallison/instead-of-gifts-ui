@@ -173,7 +173,12 @@
               <div class="milestone-card__content-row">
                 <div class="milestone-card__content-main">
                   <h3 class="milestone-card__title-wrap">
-                    <a [routerLink]="['/campaigns', row.campaign.slug]" class="milestone-card__title">{{ row.campaign.title }}</a>
+                    <a
+                      [routerLink]="['/campaigns', row.campaign.slug]"
+                      class="milestone-card__title"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{{ row.campaign.title }}</a>
                   </h3>
 
                   <p class="milestone-card__amount">

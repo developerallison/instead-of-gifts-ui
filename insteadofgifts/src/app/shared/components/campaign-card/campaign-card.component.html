@@ -36,7 +36,12 @@
         </div>
 
         <!-- Title + slug -->
-        <a [routerLink]="['/campaigns', campaign().slug]" class="block group">
+        <a
+          [routerLink]="['/campaigns', campaign().slug]"
+          class="block group"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <h3 class="campaign-card__db-title group-hover:text-forest transition-colors duration-150">
             {{ campaign().title }}
           </h3>
@@ -93,6 +98,8 @@
             variant="ghost"
             size="sm"
             [routerLink]="['/campaigns', campaign().slug]"
+            target="_blank"
+            rel="noopener noreferrer"
             [ariaLabel]="'View campaign: ' + campaign().title"
           >
             <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -191,7 +198,12 @@
 
     <!-- ── Cover image ──────────────────────────────────────────────────── -->
     @if (showImage()) {
-      <a [routerLink]="['/campaigns', campaign().slug]" class="block overflow-hidden rounded-t-[12px]">
+      <a
+        [routerLink]="['/campaigns', campaign().slug]"
+        class="block overflow-hidden rounded-t-[12px]"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         @if (campaign().coverImageUrl) {
           <img
             [ngSrc]="campaign().coverImageUrl!"
@@ -245,7 +257,12 @@
       </div>
 
       <!-- Title -->
-      <a [routerLink]="['/campaigns', campaign().slug]" class="block group">
+      <a
+        [routerLink]="['/campaigns', campaign().slug]"
+        class="block group"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <h3 class="campaign-card__title group-hover:text-forest transition-colors duration-150">
           {{ campaign().title }}
         </h3>

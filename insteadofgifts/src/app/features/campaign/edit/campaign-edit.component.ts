@@ -170,7 +170,7 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
       });
 
       this.toastSvc.success('Campaign updated successfully.');
-      await this.router.navigate(['/campaigns', c.slug]);
+      await this.router.navigate(['/dashboard']);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       this.submitError.set(message);

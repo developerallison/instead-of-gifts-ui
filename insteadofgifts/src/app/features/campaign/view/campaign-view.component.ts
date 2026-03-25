@@ -16,7 +16,14 @@ import {
   CampaignTotals,
   ContributionDisplay,
 } from '../../../core/services/supabase.service';
-import { Campaign } from '../../../core/models/campaign.model';
+import { Campaign, CampaignFundUse } from '../../../core/models/campaign.model';
+
+const FUND_USE_DEFAULT_MESSAGES: Record<CampaignFundUse, string> = {
+  educational:
+    "In celebrating this milestone we're prioritizing future learning over physical gifts. Contributions toward education are deeply appreciated.",
+  personal:
+    "In celebrating this milestone, we're choosing to focus on growth and meaningful experiences rather than traditional gifts. Your support is truly appreciated.",
+};
 import { ProgressBarComponent } from '../../../shared/components/progress-bar/progress-bar.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { QrCodeComponent } from '../../../shared/components/qr-code/qr-code.component';
@@ -168,6 +175,10 @@ export class CampaignViewComponent implements OnInit {
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+
+  fundUseDefaultMessage(fundUse: CampaignFundUse): string {
+    return FUND_USE_DEFAULT_MESSAGES[fundUse];
+  }
 
   formatAmount(major: number, currency = 'USD'): string {
     try {
