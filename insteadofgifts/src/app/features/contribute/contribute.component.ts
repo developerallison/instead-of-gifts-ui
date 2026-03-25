@@ -75,6 +75,11 @@ export class ContributeComponent implements OnInit {
   readonly amountValid   = computed(() => this.amountPence() >= 100);
   readonly amountTouched = signal(false);
 
+  /** True when the campaign's organiser has completed Stripe Connect onboarding. */
+  readonly organiserDirectPay = computed(
+    () => this.campaign()?.stripeOnboardingComplete ?? false
+  );
+
   // ── Payment state ─────────────────────────────────────────────────────────
   readonly paying       = signal(false);
   readonly payError     = signal<string | null>(null);

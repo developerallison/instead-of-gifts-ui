@@ -21,6 +21,57 @@
     </div>
   </div>
 
+  <!-- ── Stripe Connect section ──────────────────────────────────────────── -->
+  @if (stripeConnect(); as sc) {
+    @if (!sc.accountId) {
+      <!-- Not connected -->
+      <div class="connect-banner connect-banner--info" role="banner">
+        <div class="connect-banner__inner">
+          <div class="connect-banner__text">
+            <svg class="connect-banner__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M2.5 4A1.5 1.5 0 001 5.5V6h18v-.5A1.5 1.5 0 0017.5 4h-15zM19 8.5H1v6A1.5 1.5 0 002.5 16h15a1.5 1.5 0 001.5-1.5v-6zM3 13.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm4.75-.75a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z"/>
+            </svg>
+            <span><strong>Connect your Stripe account</strong> to receive donations directly into your bank.</span>
+          </div>
+          <app-button variant="primary" size="sm" type="button" [loading]="connectLoading()" (clicked)="onConnectStripe()">
+            Connect Stripe
+          </app-button>
+        </div>
+      </div>
+    } @else if (!sc.onboardingComplete) {
+      <!-- Connected but onboarding incomplete -->
+      <div class="connect-banner connect-banner--warning" role="banner">
+        <div class="connect-banner__inner">
+          <div class="connect-banner__text">
+            <svg class="connect-banner__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+            </svg>
+            <span><strong>Complete your Stripe setup</strong> to start receiving donations directly.</span>
+          </div>
+          <app-button variant="secondary" size="sm" type="button" [loading]="connectLoading()" (clicked)="onConnectStripe()">
+            Complete setup
+          </app-button>
+        </div>
+      </div>
+    } @else {
+      <!-- Connected and complete -->
+      <div class="connect-banner connect-banner--success" role="status">
+        <div class="connect-banner__inner">
+          <div class="connect-banner__text">
+            <svg class="connect-banner__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
+            </svg>
+            <span>
+              <strong>Stripe connected</strong>
+              — donations go directly to your account
+              <code class="connect-banner__account-id">{{ sc.accountId!.slice(-4) }}</code>
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
   @if (!isPro()) {
     <div class="upgrade-banner" role="banner" aria-label="Upgrade to Pro">
       <div class="upgrade-banner__inner">

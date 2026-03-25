@@ -45,6 +45,8 @@ interface CampaignRow {
   fund_use: CampaignFundUse | null;
   created_by: string | null;
   created_at: string;
+  stripe_account_id: string | null;
+  stripe_onboarding_complete: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -339,6 +341,8 @@ export class CampaignService {
       organiserName: 'Organiser',  // resolved separately when profile data is available
       createdAt: row.created_at,
       endsAt: row.deadline ?? undefined,
+      stripeAccountId: row.stripe_account_id ?? null,
+      stripeOnboardingComplete: row.stripe_onboarding_complete ?? false,
     };
   }
 }

@@ -8,7 +8,7 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { CampaignService } from '../../core/services/campaign.service';
 import {
@@ -18,6 +18,7 @@ import {
 } from '../../core/services/supabase.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProService } from '../../core/services/pro.service';
+import { StripeService } from '../../core/services/stripe.service';
 import { Campaign } from '../../core/models/campaign.model';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
@@ -43,6 +44,12 @@ interface DashboardActivity {
   createdAt: string;
 }
 
+/** Stripe Connect status for the currently signed-in organiser. */
+interface StripeConnectStatus {
+  accountId: string | null;
+  onboardingComplete: boolean;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -56,6 +63,8 @@ export class DashboardComponent implements OnInit {
   private readonly supabaseSvc = inject(SupabaseService);
   private readonly authSvc     = inject(AuthService);
   private readonly proSvc      = inject(ProService);
+  private readonly stripeSvc   = inject(StripeService);
+  private readonly route       = inject(ActivatedRoute);
   private readonly platformId  = inject(PLATFORM_ID);
 
   /** Expose to template for the upgrade banner. */
@@ -65,9 +74,13 @@ export class DashboardComponent implements OnInit {
   readonly rows    = signal<DashboardRow[]>([]);
   readonly loading = signal(true);
   readonly error   = signal<string | null>(null);
-  readonly signingOut = signal(false);
+  readonly signingOut     = signal(false);
+  readonly connectLoading = signal(false);
   readonly recentActivity = signal<DashboardActivity[]>([]);
   readonly baseHost = signal('insteadofgifts.com');
+
+  /** Stripe Connect status — null while loading. */
+  readonly stripeConnect = signal<StripeConnectStatus | null>(null);
 
   readonly greetingName = computed(() => {
     const name = this.rows()[0]?.campaign.organiserName?.trim();
@@ -90,8 +103,25 @@ export class DashboardComponent implements OnInit {
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   async ngOnInit(): Promise<void> {
+    // ── Handle Stripe Connect redirect query params ──────────────────────────
+    const connectParam = this.route.snapshot.queryParamMap.get('connect');
+
+    if (connectParam === 'refresh') {
+      // Stripe sent the user back because the AccountLink expired — re-trigger.
+      try {
+        await this.stripeSvc.startConnectOnboarding();
+      } catch (e) {
+        console.error('[dashboard] Failed to re-trigger Connect onboarding:', e);
+      }
+      // startConnectOnboarding() performs a hard redirect, so execution stops here.
+    }
+
+    // ── Load campaigns, totals, activity, and Stripe Connect status ──────────
     try {
-      const campaigns = await this.campaignSvc.getOwnCampaigns();
+      const [campaigns, connectStatus] = await Promise.all([
+        this.campaignSvc.getOwnCampaigns(),
+        this.loadStripeConnectStatus(connectParam === 'success'),
+      ]);
 
       // Parallel fetch of live totals
       const totalsArr = await Promise.all(
@@ -111,6 +141,8 @@ export class DashboardComponent implements OnInit {
           imageUploadOpen: false,
         }))
       );
+
+      this.stripeConnect.set(connectStatus);
 
       // Fetch recent non-anonymous contributions for dashboard activity.
       const recentByCampaign = await Promise.all(
@@ -148,6 +180,37 @@ export class DashboardComponent implements OnInit {
       console.error(e);
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  /**
+   * Reads the organiser's Stripe Connect status from user_profiles.
+   * When `verifyWithStripe` is true the Edge Function is called first so
+   * Stripe's latest `details_submitted` value is persisted before we read.
+   */
+  private async loadStripeConnectStatus(
+    verifyWithStripe: boolean,
+  ): Promise<StripeConnectStatus> {
+    try {
+      if (verifyWithStripe) {
+        await this.stripeSvc.checkConnectStatus();
+      }
+
+      const { data: { user } } = await this.supabaseSvc.client.auth.getUser();
+      if (!user) return { accountId: null, onboardingComplete: false };
+
+      const { data: profile } = await this.supabaseSvc.client
+        .from('user_profiles')
+        .select('stripe_account_id, stripe_onboarding_complete')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      return {
+        accountId:          profile?.stripe_account_id          ?? null,
+        onboardingComplete: profile?.stripe_onboarding_complete ?? false,
+      };
+    } catch {
+      return { accountId: null, onboardingComplete: false };
     }
   }
 
@@ -277,6 +340,19 @@ export class DashboardComponent implements OnInit {
     } catch (e) {
       console.error('Failed to delete campaign', e);
       this.updateRow(campaign.id, { deleting: false });
+    }
+  }
+
+  async onConnectStripe(): Promise<void> {
+    if (this.connectLoading()) return;
+    this.connectLoading.set(true);
+    try {
+      await this.stripeSvc.startConnectOnboarding();
+      // Hard-redirects to Stripe — execution stops here on success.
+    } catch (e) {
+      console.error('[dashboard] Failed to start Connect onboarding:', e);
+    } finally {
+      this.connectLoading.set(false);
     }
   }
 

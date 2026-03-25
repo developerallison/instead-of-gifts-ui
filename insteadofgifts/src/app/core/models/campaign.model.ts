@@ -18,4 +18,8 @@ export interface Campaign {
   createdAt: string;          // ISO 8601
   endsAt?: string;            // ISO 8601, optional deadline
   fundUse?: CampaignFundUse;
+  /** Stripe Connect: the organiser's connected account ID (acct_…). */
+  stripeAccountId?: string | null;
+  /** True once the organiser has completed Stripe Express onboarding. */
+  stripeOnboardingComplete: boolean;
 }

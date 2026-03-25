@@ -244,6 +244,15 @@
               </svg>
               Secured by Stripe. We never store your card details.
             </p>
+
+            @if (organiserDirectPay()) {
+              <p class="stripe-note stripe-note--direct">
+                <svg class="w-3.5 h-3.5 inline-block mr-1 opacity-50" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M2.5 4A1.5 1.5 0 001 5.5V6h18v-.5A1.5 1.5 0 0017.5 4h-15zM19 8.5H1v6A1.5 1.5 0 002.5 16h15a1.5 1.5 0 001.5-1.5v-6z"/>
+                </svg>
+                Donations go directly to the organiser.
+              </p>
+            }
           </div>
 
         </form>

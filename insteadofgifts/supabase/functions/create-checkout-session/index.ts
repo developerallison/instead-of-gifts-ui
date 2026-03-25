@@ -39,6 +39,19 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_ANON_KEY') ?? '',
 );
 
+/**
+ * Service-role client — used to read user_profiles (which are protected by
+ * RLS and not accessible via the anon key from a server context).
+ */
+const supabaseAdmin = createClient(
+  Deno.env.get('SUPABASE_URL')              ?? '',
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+);
+
+/** Platform fee percentage taken as an application fee. Default: 5%. */
+const PLATFORM_FEE_PERCENT =
+  parseFloat(Deno.env.get('PLATFORM_FEE_PERCENT') ?? '5');
+
 // ---------------------------------------------------------------------------
 // Handler
 // ---------------------------------------------------------------------------
@@ -94,7 +107,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // ── Validate campaign ──────────────────────────────────────────────────────
   const { data: campaign, error: campaignError } = await supabase
     .from('campaigns')
-    .select('id, title, is_active')
+    .select('id, title, is_active, created_by')
     .eq('id', campaignId)
     .single();
 
@@ -107,8 +120,28 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return respond(400, { error: 'Campaign is no longer accepting contributions' });
   }
 
+  // ── Check whether the campaign organiser has a connected Stripe account ──
+  let organiserStripeAccountId: string | null = null;
+
+  if (campaign.created_by) {
+    const { data: profile } = await supabaseAdmin
+      .from('user_profiles')
+      .select('stripe_account_id, stripe_onboarding_complete')
+      .eq('id', campaign.created_by)
+      .maybeSingle();
+
+    if (profile?.stripe_account_id && profile?.stripe_onboarding_complete) {
+      organiserStripeAccountId = profile.stripe_account_id;
+    }
+  }
+
   // ── Create Stripe Checkout Session ─────────────────────────────────────────
   try {
+    // Build optional Connect params (only when organiser has a connected account).
+    const applicationFeeAmount = organiserStripeAccountId
+      ? Math.round(amountPence * (PLATFORM_FEE_PERCENT / 100))
+      : undefined;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -147,12 +180,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
           is_anonymous:     isAnonymous ? 'true' : 'false',
           amount_pence:     String(amountPence),
         },
+        // Route funds directly to the organiser's connected account.
+        // Falls back to the platform account when no connected account exists.
+        ...(organiserStripeAccountId && {
+          transfer_data:          { destination: organiserStripeAccountId },
+          application_fee_amount: applicationFeeAmount,
+        }),
       },
     });
 
     console.log(
       `[create-checkout-session] Created session ${session.id} ` +
-      `for campaign ${campaignId}, amount ${amountPence} cents`
+      `for campaign ${campaignId}, amount ${amountPence} cents` +
+      (organiserStripeAccountId
+        ? `, routed to connected account ${organiserStripeAccountId}` +
+          `, fee ${applicationFeeAmount} cents`
+        : ', platform account (no connected organiser)')
     );
 
     return respond(200, { url: session.url! }, true);

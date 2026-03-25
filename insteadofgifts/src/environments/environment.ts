@@ -8,7 +8,8 @@ export const environment = {
     anonKey: 'sb_publishable_pIR-Mu_88Rjd9oDo2QJdOw_x0FJjRR2',
   },
   stripe: {
-    publishableKey: 'pk_test_51TEB69C2K9QKQDaRNPJCKeBVKslg6bduyTI7eUCAWvdJhyHc9M45NZDkFsO70kbPIVoyPyQtyrG3u14D9PNWIAYH00uMp0jtpI',
+    // publishableKey: 'pk_test_51TEB69C2K9QKQDaRNPJCKeBVKslg6bduyTI7eUCAWvdJhyHc9M45NZDkFsO70kbPIVoyPyQtyrG3u14D9PNWIAYH00uMp0jtpI',
+    publishableKey: 'pk_test_51TEyiSCLVeQmeNHJPVrUahDMwTQVitf6rhO0BFN0A5ECQ9pLmrMMW587Q2jSBuLyTyNW3VtoMgkDONVmhWBGaQoT00TGASlnZV',
   },
   /**
    * Edge Functions base URL. Use local Supabase CLI (`supabase start`) for dev,

@@ -73,3 +73,13 @@ verify_jwt = false
 # STRIPE_WEBHOOK_SECRET which we verify inside the function.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# stripe-connect-onboard: called by authenticated organisers to start or resume
+# Stripe Connect Express onboarding. JWT is required to identify the user.
+[functions.stripe-connect-onboard]
+verify_jwt = false
+
+# stripe-connect-callback: called by authenticated organisers after returning
+# from the Stripe Connect onboarding flow. JWT is required to identify the user.
+[functions.stripe-connect-callback]
+verify_jwt = false
