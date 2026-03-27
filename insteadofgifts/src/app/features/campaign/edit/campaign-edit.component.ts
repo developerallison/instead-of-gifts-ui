@@ -18,6 +18,7 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { CampaignService } from '../../../core/services/campaign.service';
+import { SupabaseService } from '../../../core/services/supabase.service';
 import { ProService } from '../../../core/services/pro.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Campaign, CampaignFundUse } from '../../../core/models/campaign.model';
@@ -61,6 +62,7 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
   private readonly route       = inject(ActivatedRoute);
   private readonly router      = inject(Router);
   private readonly campaignSvc = inject(CampaignService);
+  private readonly supabaseSvc = inject(SupabaseService);
   private readonly proSvc      = inject(ProService);
   private readonly toastSvc    = inject(ToastService);
 
@@ -71,6 +73,7 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
   readonly submitting  = signal(false);
   readonly submitError = signal<string | null>(null);
   readonly campaign    = signal<Campaign | null>(null);
+  readonly hasContributions = signal(false);
 
   /** Today's date in YYYY-MM-DD — used as the `min` attr on the date input. */
   readonly todayIso = new Date().toISOString().split('T')[0];
@@ -112,6 +115,12 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
 
       this.campaign.set(c);
       this.populateForm(c);
+      const totals = await this.supabaseSvc.getCampaignTotals(c.id);
+      if (totals.count > 0) {
+        this.hasContributions.set(true);
+        this.form.controls.title.disable({ emitEvent: false });
+        this.form.controls.deadline.disable({ emitEvent: false });
+      }
     } catch {
       this.loadError.set('Failed to load campaign.');
     } finally {
