@@ -9,7 +9,6 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import * as QRCode from 'qrcode';
 
 /**
@@ -28,7 +27,6 @@ import * as QRCode from 'qrcode';
   selector: 'app-qr-code',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
   templateUrl: './qr-code.component.html',
   styleUrl:    './qr-code.component.scss',
 })

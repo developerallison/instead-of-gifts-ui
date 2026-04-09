@@ -105,16 +105,13 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
   async onSubmit(): Promise<void> {
     this.form.markAllAsTouched();
     if (this.form.invalid || this.submitting()) return;
-    if (!this.canCreatePaidCampaign()) {
-      this.submitError.set('Complete payment before creating a campaign.');
-      return;
-    }
 
     this.submitting.set(true);
     this.submitError.set(null);
 
     try {
       const { title, description, fundUse, targetAmount, deadline } = this.form.getRawValue();
+      const usePaidCredit = this.canCreatePaidCampaign();
 
       await this.campaignSvc.createCampaign({
         title,
@@ -122,6 +119,7 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
         fundUse: fundUse ?? null,
         targetAmountPence: targetAmount != null ? targetAmount * 100 : null,
         deadline: deadline || null,
+        usePaidCredit,
       });
 
       await this.proSvc.loadProfile();
@@ -140,5 +138,9 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
 
   get descriptionLength(): number {
     return this.form.controls.description.value.length;
+  }
+
+  get submitButtonLabel(): string {
+    return this.canCreatePaidCampaign() ? 'Create paid campaign' : 'Create free campaign';
   }
 }

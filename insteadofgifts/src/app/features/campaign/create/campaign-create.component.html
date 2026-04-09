@@ -8,168 +8,163 @@
         Back to dashboard
       </a>
       <h1 class="mt-4 text-3xl font-bold text-text-dark">Create a campaign</h1>
-      <p class="mt-1 text-text-muted">Payment is required before you can create a campaign.</p>
+      <p class="mt-1 text-text-muted">
+        @if (canCreatePaidCampaign()) {
+          You have a paid campaign credit available. This campaign will be created as Pro.
+        } @else {
+          Start with a free campaign. You can upgrade a campaign later if you need more features.
+        }
+      </p>
     </div>
 
-    @if (!canCreatePaidCampaign()) {
-      <div class="create-page__paywall">
-        <h2 class="create-page__paywall-title">Buy campaign access first</h2>
-        <p class="create-page__paywall-body">
-          You need one campaign credit to create a campaign. After payment, you can create one Pro campaign.
-        </p>
-        <p class="create-page__paywall-credits">Credits available: {{ campaignCredits() }}</p>
-        <app-button variant="pro" size="lg" [routerLink]="['/pro', 'upgrade']">
-          Pay $9.99 to continue
-        </app-button>
-      </div>
-    } @else {
-      <form
-        [formGroup]="form"
-        (ngSubmit)="onSubmit()"
-        class="create-page__card"
-        novalidate
-      >
-        <div class="form-columns">
-          <section class="form-section">
-            <h2 class="form-section__title">Campaign details</h2>
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      class="create-page__card"
+      novalidate
+    >
+      <div class="form-columns">
+        <section class="form-section">
+          <h2 class="form-section__title">Campaign details</h2>
 
-            <div class="field">
-              <label for="title" class="field__label">
-                Campaign title
-                <span class="text-error" aria-hidden="true">*</span>
-                <span class="sr-only">(required)</span>
-              </label>
-              <input
-                id="title"
-                type="text"
-                formControlName="title"
-                maxlength="80"
-                placeholder="e.g. Alice's 30th Birthday"
-                class="field__input"
-                [class.field__input--error]="hasError('title', 'required') || hasError('title', 'maxlength')"
-                [attr.aria-invalid]="(hasError('title', 'required') || hasError('title', 'maxlength')) || null"
-                aria-describedby="title-errors"
-                autocomplete="off"
-              />
-              @if (slugPreview()) {
-                <p class="field__hint">
-                  <span class="text-text-muted">Your link: </span>
-                  <span class="font-medium text-forest">insteadofgifts.com/{{ slugPreview() }}</span>
-                </p>
-              }
-              <div id="title-errors" aria-live="polite">
-                @if (hasError('title', 'required')) {
-                  <p class="field__error" role="alert">Title is required.</p>
-                }
-                @if (hasError('title', 'maxlength')) {
-                  <p class="field__error" role="alert">Title must be 80 characters or fewer.</p>
-                }
-              </div>
-              <p class="field__counter" aria-live="polite" aria-atomic="true">
-                {{ form.controls.title.value.length }}&nbsp;/&nbsp;80
+          <div class="field">
+            <label for="title" class="field__label">
+              Campaign title
+              <span class="text-error" aria-hidden="true">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              id="title"
+              type="text"
+              formControlName="title"
+              maxlength="80"
+              placeholder="e.g. Alice's 30th Birthday"
+              class="field__input"
+              [class.field__input--error]="hasError('title', 'required') || hasError('title', 'maxlength')"
+              [attr.aria-invalid]="(hasError('title', 'required') || hasError('title', 'maxlength')) || null"
+              aria-describedby="title-errors"
+              autocomplete="off"
+            />
+            @if (slugPreview()) {
+              <p class="field__hint">
+                <span class="text-text-muted">Your link: </span>
+                <span class="font-medium text-forest">insteadofgifts.com/{{ slugPreview() }}</span>
               </p>
+            }
+            <div id="title-errors" aria-live="polite">
+              @if (hasError('title', 'required')) {
+                <p class="field__error" role="alert">Title is required.</p>
+              }
+              @if (hasError('title', 'maxlength')) {
+                <p class="field__error" role="alert">Title must be 80 characters or fewer.</p>
+              }
             </div>
+            <p class="field__counter" aria-live="polite" aria-atomic="true">
+              {{ form.controls.title.value.length }}&nbsp;/&nbsp;80
+            </p>
+          </div>
 
-            <div class="field">
-              <label for="description" class="field__label">
-                Description <span class="field__optional">(optional)</span>
-              </label>
-              <textarea
-                id="description"
-                formControlName="description"
-                rows="4"
-                maxlength="500"
-                placeholder="Tell guests what this campaign is for..."
-                class="field__input field__input--textarea"
-                [class.field__input--error]="hasError('description', 'maxlength')"
-                [attr.aria-invalid]="hasError('description', 'maxlength') || null"
-                aria-describedby="description-errors"
-              ></textarea>
-              <div id="description-errors" aria-live="polite">
-                @if (hasError('description', 'maxlength')) {
-                  <p class="field__error" role="alert">Description must be 500 characters or fewer.</p>
-                }
-              </div>
-              <p class="field__counter" aria-live="polite" aria-atomic="true">{{ descriptionLength }}&nbsp;/&nbsp;500</p>
+          <div class="field">
+            <label for="description" class="field__label">
+              Description <span class="field__optional">(optional)</span>
+            </label>
+            <textarea
+              id="description"
+              formControlName="description"
+              rows="4"
+              maxlength="500"
+              placeholder="Tell guests what this campaign is for..."
+              class="field__input field__input--textarea"
+              [class.field__input--error]="hasError('description', 'maxlength')"
+              [attr.aria-invalid]="hasError('description', 'maxlength') || null"
+              aria-describedby="description-errors"
+            ></textarea>
+            <div id="description-errors" aria-live="polite">
+              @if (hasError('description', 'maxlength')) {
+                <p class="field__error" role="alert">Description must be 500 characters or fewer.</p>
+              }
             </div>
+            <p class="field__counter" aria-live="polite" aria-atomic="true">{{ descriptionLength }}&nbsp;/&nbsp;500</p>
+          </div>
 
-            <fieldset class="field field--fund-use">
-              <legend class="field__label mb-2">Fund use</legend>
-              <p class="field__hint field__hint--group">Choose how you would like to frame contributions.</p>
-              <div class="field__choices field__choices--cards">
-                <label class="field__choice-card">
-                  <input type="radio" formControlName="fundUse" value="educational" />
-                  <span class="field__choice-content">
-                    <span class="field__choice-title">Educational</span>
-                    <span class="field__choice-description">
-                      In celebrating this milestone, we are prioritizing future learning over physical gifts.
-                      Contributions toward education are deeply appreciated.
-                    </span>
+          <fieldset class="field field--fund-use">
+            <legend class="field__label mb-2">Fund use</legend>
+            <p class="field__hint field__hint--group">Choose how you would like to frame contributions.</p>
+            <div class="field__choices field__choices--cards">
+              <label class="field__choice-card">
+                <input type="radio" formControlName="fundUse" value="educational" />
+                <span class="field__choice-content">
+                  <span class="field__choice-title">Educational</span>
+                  <span class="field__choice-description">
+                    In celebrating this milestone, we are prioritizing future learning over physical gifts.
+                    Contributions toward education are deeply appreciated.
                   </span>
-                </label>
-                <label class="field__choice-card">
-                  <input type="radio" formControlName="fundUse" value="personal" />
-                  <span class="field__choice-content">
-                    <span class="field__choice-title">Personal</span>
-                    <span class="field__choice-description">
-                      In celebrating this milestone, we are focusing on growth and meaningful experiences rather
-                      than traditional gifts. Your support is truly appreciated.
-                    </span>
+                </span>
+              </label>
+              <label class="field__choice-card">
+                <input type="radio" formControlName="fundUse" value="personal" />
+                <span class="field__choice-content">
+                  <span class="field__choice-title">Personal</span>
+                  <span class="field__choice-description">
+                    In celebrating this milestone, we are focusing on growth and meaningful experiences rather
+                    than traditional gifts. Your support is truly appreciated.
                   </span>
-                </label>
-              </div>
-            </fieldset>
-
-            <div class="field">
-              <label for="targetAmount" class="field__label">
-                Fundraising goal <span class="field__optional">(optional)</span>
+                </span>
               </label>
-              <div class="field__currency-wrap">
-                <span class="field__currency-symbol" aria-hidden="true">$</span>
-                <input
-                  id="targetAmount"
-                  type="number"
-                  formControlName="targetAmount"
-                  min="1"
-                  step="1"
-                  placeholder="0"
-                  class="field__input field__input--currency"
-                  [class.field__input--error]="hasError('targetAmount', 'positiveAmount')"
-                  [attr.aria-invalid]="hasError('targetAmount', 'positiveAmount') || null"
-                  aria-describedby="targetAmount-errors"
-                />
-              </div>
-              <div id="targetAmount-errors" aria-live="polite">
-                @if (hasError('targetAmount', 'positiveAmount')) {
-                  <p class="field__error" role="alert">Goal must be at least $1.</p>
-                }
-              </div>
-              <p class="field__hint">Leave blank for an open-ended campaign.</p>
             </div>
+          </fieldset>
 
-            <div class="field">
-              <label for="deadline" class="field__label">
-                End date <span class="field__optional">(optional)</span>
-              </label>
+          <div class="field">
+            <label for="targetAmount" class="field__label">
+              Fundraising goal <span class="field__optional">(optional)</span>
+            </label>
+            <div class="field__currency-wrap">
+              <span class="field__currency-symbol" aria-hidden="true">$</span>
               <input
-                id="deadline"
-                type="date"
-                formControlName="deadline"
-                [min]="todayIso"
-                class="field__input field__input--date"
-                [class.field__input--error]="hasError('deadline', 'pastDate')"
-                [attr.aria-invalid]="hasError('deadline', 'pastDate') || null"
-                aria-describedby="deadline-errors"
+                id="targetAmount"
+                type="number"
+                formControlName="targetAmount"
+                min="1"
+                step="1"
+                placeholder="0"
+                class="field__input field__input--currency"
+                [class.field__input--error]="hasError('targetAmount', 'positiveAmount')"
+                [attr.aria-invalid]="hasError('targetAmount', 'positiveAmount') || null"
+                aria-describedby="targetAmount-errors"
               />
-              <div id="deadline-errors" aria-live="polite">
-                @if (hasError('deadline', 'pastDate')) {
-                  <p class="field__error" role="alert">Please choose a future date.</p>
-                }
-              </div>
             </div>
-          </section>
+            <div id="targetAmount-errors" aria-live="polite">
+              @if (hasError('targetAmount', 'positiveAmount')) {
+                <p class="field__error" role="alert">Goal must be at least $1.</p>
+              }
+            </div>
+            <p class="field__hint">Leave blank for an open-ended campaign.</p>
+          </div>
 
-          <section class="form-section">
+          <div class="field">
+            <label for="deadline" class="field__label">
+              End date <span class="field__optional">(optional)</span>
+            </label>
+            <input
+              id="deadline"
+              type="date"
+              formControlName="deadline"
+              [min]="todayIso"
+              class="field__input field__input--date"
+              [class.field__input--error]="hasError('deadline', 'pastDate')"
+              [attr.aria-invalid]="hasError('deadline', 'pastDate') || null"
+              aria-describedby="deadline-errors"
+            />
+            <div id="deadline-errors" aria-live="polite">
+              @if (hasError('deadline', 'pastDate')) {
+                <p class="field__error" role="alert">Please choose a future date.</p>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          @if (canCreatePaidCampaign()) {
             <h2 class="form-section__title">Included with this paid campaign</h2>
 
             <div class="locked-section locked-section--active">
@@ -193,31 +188,60 @@
                 </li>
               </ul>
             </div>
-          </section>
-        </div>
+          } @else {
+            <h2 class="form-section__title">Included with this free campaign</h2>
 
-        @if (submitError()) {
-          <div class="submit-error" role="alert">
-            <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/>
-            </svg>
-            {{ submitError() }}
-          </div>
-        }
+            <div class="locked-section">
+              <div class="locked-section__header">
+                <svg class="w-5 h-5 text-text-muted" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-sm font-semibold text-text-mid">Basic campaign</span>
+              </div>
 
-        <div class="form-actions">
-          <app-button variant="ghost" size="md" type="button" routerLink="/dashboard">Cancel</app-button>
-          <app-button
-            variant="primary"
-            size="md"
-            type="submit"
-            [loading]="submitting()"
-            [disabled]="form.invalid && form.touched"
-          >
-            Create paid campaign
-          </app-button>
+              <ul class="locked-section__features">
+                <li class="locked-feature">
+                  <div class="locked-feature__field">
+                    <span class="locked-feature__label">Shareable campaign link</span>
+                  </div>
+                </li>
+                <li class="locked-feature">
+                  <div class="locked-feature__field">
+                    <span class="locked-feature__label">Contribution tracking</span>
+                  </div>
+                </li>
+                <li class="locked-feature">
+                  <div class="locked-feature__field locked-feature__field--locked">
+                    <span class="locked-feature__label">No Pro-only upgrades included</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          }
+        </section>
+      </div>
+
+      @if (submitError()) {
+        <div class="submit-error" role="alert">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/>
+          </svg>
+          {{ submitError() }}
         </div>
-      </form>
-    }
+      }
+
+      <div class="form-actions">
+        <app-button variant="ghost" size="md" type="button" routerLink="/dashboard">Cancel</app-button>
+        <app-button
+          variant="primary"
+          size="md"
+          type="submit"
+          [loading]="submitting()"
+          [disabled]="form.invalid && form.touched"
+        >
+          {{ submitButtonLabel }}
+        </app-button>
+      </div>
+    </form>
   </div>
 </div>

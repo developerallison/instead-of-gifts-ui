@@ -25,14 +25,29 @@ export class UpgradeComponent {
 
   readonly campaignCredits = inject(ProService).campaignCredits;
 
-  readonly features: PlanFeature[] = [
-    { label: 'Create one campaign', included: true },
-    { label: 'Cover photo upload', included: true },
+  readonly freeFeatures: PlanFeature[] = [
+    { label: 'Campaign Pro upgrade', included: false },
+    { label: 'Shareable campaign link', included: true },
+    { label: 'Contribution tracking', included: true },
+    { label: 'Cover photos', included: false },
+    { label: 'Custom thank-you message', included: false },
+    { label: 'QR code sharing', included: false },
+    { label: 'Priority support', included: false },
+  ];
+
+  readonly proFeatures: PlanFeature[] = [
+    { label: 'Campaign Pro upgrade ($9.99 each)', included: true },
+    { label: 'Shareable campaign link', included: true },
+    { label: 'Contribution tracking', included: true },
+    { label: 'Cover photos', included: true },
     { label: 'Custom thank-you message', included: true },
-    { label: 'QR code on dashboard', included: true },
-    { label: 'Campaign deadline', included: true },
+    { label: 'QR code sharing', included: true },
     { label: 'Priority support', included: true },
   ];
+
+  async onContinueFree(): Promise<void> {
+    await this.router.navigate(['/campaigns/new']);
+  }
 
   async onUpgrade(): Promise<void> {
     await this.router.navigate(['/pro/upgrade/payment']);

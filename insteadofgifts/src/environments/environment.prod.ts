@@ -1,17 +1,17 @@
 /** Set to your Supabase project URL (Dashboard → Settings → API → Project URL). */
-const supabaseProjectUrl = 'YOUR_SUPABASE_URL';
+const supabaseProjectUrl = 'https://mmvabtwjneyrptdmtass.supabase.co';
 
 export const environment = {
   production: true,
   supabase: {
     url: supabaseProjectUrl,
-    anonKey: 'YOUR_SUPABASE_ANON_KEY',
+    anonKey: 'sb_publishable_pIR-Mu_88Rjd9oDo2QJdOw_x0FJjRR2',
   },
   stripe: {
-    publishableKey: 'YOUR_STRIPE_PUBLISHABLE_KEY', //developer@insteadofgifts.com
+    publishableKey: 'pk_test_51TEj2wKPfi0NJ0mnhOHkRLGQLjRJtHjZvngjgTBqBp7FPA4R1lS3TTDxc5CQDNp1UPQCDN64XKwQpCN4HX2L2GYa00KLEtoXPy', //developer@insteadofgifts.com
   },
   paypal: {
-    clientId: 'YOUR_PAYPAL_CLIENT_ID',
+    clientId: 'AYloqzb9C8jsFWuL5B5WR8hXrIWHtImNXIEMziOtF1A--s6ksFBcjfbKVkHXI0IKdD7ET8g4xzuagToH',
     environment: 'sandbox',
   },
   /** Derived from the project URL so it never drifts out of sync. */

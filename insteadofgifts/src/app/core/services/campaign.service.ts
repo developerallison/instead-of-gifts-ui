@@ -23,6 +23,7 @@ export interface CreateCampaignInput {
   customMessage?: string;
   coverImageFile?: File | null;
   fundUse?: CampaignFundUse | null;
+  usePaidCredit?: boolean;
 }
 
 interface CampaignRow {
@@ -114,18 +115,47 @@ export class CampaignService {
 
     const slug = await this.ensureUniqueSlug(input.title);
 
-    const { data, error } = await this.supabase.client.rpc('create_paid_campaign', {
-      p_title: input.title.trim(),
-      p_slug: slug,
-      p_description: input.description?.trim() || null,
-      p_target_amount: input.targetAmountPence != null ? input.targetAmountPence / 100 : null,
-      p_deadline: input.deadline || null,
-      p_custom_message: input.customMessage?.trim() || null,
-      p_fund_use: input.fundUse ?? null,
-    });
+    const usePaidCredit = input.usePaidCredit === true;
+
+    let data: unknown;
+    let error: unknown;
+
+    if (usePaidCredit) {
+      const response = await this.supabase.client.rpc('create_paid_campaign', {
+        p_title: input.title.trim(),
+        p_slug: slug,
+        p_description: input.description?.trim() || null,
+        p_target_amount: input.targetAmountPence != null ? input.targetAmountPence / 100 : null,
+        p_deadline: input.deadline || null,
+        p_custom_message: input.customMessage?.trim() || null,
+        p_fund_use: input.fundUse ?? null,
+      });
+      data = response.data;
+      error = response.error;
+    } else {
+      const response = await this.supabase.client
+        .from('campaigns')
+        .insert({
+          title: input.title.trim(),
+          slug,
+          description: input.description?.trim() || null,
+          target_amount: input.targetAmountPence != null ? input.targetAmountPence / 100 : null,
+          deadline: input.deadline || null,
+          custom_message: input.customMessage?.trim() || null,
+          fund_use: input.fundUse ?? null,
+          created_by: user.id,
+          is_active: true,
+          is_pro: false,
+        })
+        .select('*')
+        .single();
+      data = response.data;
+      error = response.error;
+    }
 
     if (error) {
-      this.toastSvc.error(error.message || 'Failed to create campaign.');
+      const err = error as { message?: string };
+      this.toastSvc.error(err.message || 'Failed to create campaign.');
       throw error;
     }
 

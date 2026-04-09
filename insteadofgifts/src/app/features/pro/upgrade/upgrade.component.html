@@ -4,15 +4,46 @@
       <p class="upgrade-hero__eyebrow">Campaign Access</p>
       <h1 class="upgrade-hero__heading">Pay first, then create one campaign</h1>
       <p class="upgrade-hero__sub">
-        Each payment adds one campaign credit. After checkout, you can create one Pro campaign with cover photo,
-        custom thank-you message, and QR downloads.
+        Start free, then buy a one-time campaign credit only when you want the extra polish.
       </p>
     </div>
   </div>
 
   <div class="upgrade-page__inner">
-    <div class="pricing-grid pricing-grid--single">
-      <div class="plan-card plan-card--pro">
+    <div class="pricing-grid">
+      <section class="plan-card" aria-label="Free plan">
+        <div class="plan-card__header">
+          <p class="plan-card__name">Free</p>
+          <div class="plan-card__price">
+            <span class="plan-card__amount">$0</span>
+            <span class="plan-card__period">to start</span>
+          </div>
+          <p class="plan-card__tagline">Create a basic campaign and upgrade later only if you need more.</p>
+        </div>
+
+        <ul class="plan-features" role="list">
+          @for (f of freeFeatures; track f.label) {
+            <li class="plan-feature" [class.plan-feature--disabled]="!f.included">
+              <svg class="plan-feature__icon" [class.plan-feature__icon--yes]="f.included" [class.plan-feature__icon--no]="!f.included" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                @if (f.included) {
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
+                } @else {
+                  <path fill-rule="evenodd" d="M5.22 5.22a.75.75 0 011.06 0L10 8.94l3.72-3.72a.75.75 0 111.06 1.06L11.06 10l3.72 3.72a.75.75 0 11-1.06 1.06L10 11.06l-3.72 3.72a.75.75 0 11-1.06-1.06L8.94 10 5.22 6.28a.75.75 0 010-1.06z" clip-rule="evenodd"/>
+                }
+              </svg>
+              <span class="plan-feature__label">{{ f.label }}</span>
+            </li>
+          }
+        </ul>
+
+        <div class="plan-card__footer">
+          <app-button variant="secondary" size="md" [fullWidth]="true" (click)="onContinueFree()">
+            Continue free
+          </app-button>
+        </div>
+      </section>
+
+      <section class="plan-card plan-card--pro" aria-label="Campaign Pro plan">
         <div class="plan-card__badge">One time</div>
         <div class="plan-card__header">
           <p class="plan-card__name plan-card__name--pro">Campaign Credit</p>
@@ -20,11 +51,11 @@
             <span class="plan-card__amount">$9.99</span>
             <span class="plan-card__period">one campaign</span>
           </div>
-          <p class="plan-card__tagline">Buy campaign access before you start building it</p>
+          <p class="plan-card__tagline">Buy campaign access before you start building it.</p>
         </div>
 
         <ul class="plan-features" role="list">
-          @for (f of features; track f.label) {
+          @for (f of proFeatures; track f.label) {
             <li class="plan-feature">
               <svg class="plan-feature__icon plan-feature__icon--yes plan-feature__icon--pro" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
@@ -53,7 +84,7 @@
 
           <p class="plan-card__cancel-note">One payment adds one campaign credit.</p>
         </div>
-      </div>
+      </section>
     </div>
 
     <div class="upgrade-faq">
