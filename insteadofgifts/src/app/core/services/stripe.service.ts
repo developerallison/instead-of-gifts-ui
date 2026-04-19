@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { firstValueFrom } from 'rxjs';
@@ -73,14 +74,18 @@ export class StripeService {
    */
   async startConnectOnboarding(): Promise<void> {
     const jwt = await this.getJwt();
-    const response = await firstValueFrom(
-      this.http.post<{ url: string }>(
-        `${environment.apiUrl}/stripe-connect-onboard`,
-        {},
-        { headers: { Authorization: `Bearer ${jwt}` } },
-      )
-    );
-    window.location.href = response.url;
+    try {
+      const response = await firstValueFrom(
+        this.http.post<{ url: string }>(
+          `${environment.apiUrl}/stripe-connect-onboard`,
+          {},
+          { headers: { Authorization: `Bearer ${jwt}`, apikey: environment.supabase.anonKey } },
+        )
+      );
+      window.location.href = response.url;
+    } catch (error: unknown) {
+      throw new Error(this.extractHttpErrorMessage(error, 'Failed to start Stripe onboarding.'));
+    }
   }
 
   /**
@@ -89,13 +94,17 @@ export class StripeService {
    */
   async checkConnectStatus(): Promise<{ complete: boolean }> {
     const jwt = await this.getJwt();
-    return firstValueFrom(
-      this.http.post<{ complete: boolean }>(
-        `${environment.apiUrl}/stripe-connect-callback`,
-        {},
-        { headers: { Authorization: `Bearer ${jwt}`, 'apikey': environment.supabase.anonKey } },
-      )
-    );
+    try {
+      return await firstValueFrom(
+        this.http.post<{ complete: boolean }>(
+          `${environment.apiUrl}/stripe-connect-callback`,
+          {},
+          { headers: { Authorization: `Bearer ${jwt}`, 'apikey': environment.supabase.anonKey } },
+        )
+      );
+    } catch (error: unknown) {
+      throw new Error(this.extractHttpErrorMessage(error, 'Failed to check Stripe onboarding status.'));
+    }
   }
 
   /** Returns the current session JWT, or throws if the user is not signed in. */
@@ -103,6 +112,27 @@ export class StripeService {
     const { data: { session } } = await this.supabaseSvc.client.auth.getSession();
     if (!session?.access_token) throw new Error('Not authenticated');
     return session.access_token;
+  }
+
+  private extractHttpErrorMessage(error: unknown, fallback: string): string {
+    if (error instanceof HttpErrorResponse) {
+      const apiError = error.error;
+      if (apiError && typeof apiError === 'object' && 'error' in apiError && typeof apiError.error === 'string') {
+        return apiError.error;
+      }
+      if (typeof apiError === 'string' && apiError.trim()) {
+        return apiError;
+      }
+      if (error.message) {
+        return error.message;
+      }
+    }
+
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+
+    return fallback;
   }
 
   /**

@@ -11,7 +11,6 @@
     <div class="site-header__actions">
       @if (user()) {
         <a routerLink="/campaigns/all" class="site-header__nav-link">Celebrations</a>
-        <span class="site-header__credits">Credits: {{ campaignCredits() }}</span>
 
         <details #profileDropdown class="site-header__dropdown site-header__dropdown--profile">
           <summary class="site-header__trigger site-header__trigger--profile">
@@ -30,7 +29,7 @@
 
             <a routerLink="/dashboard" class="site-header__panel-link" (click)="closeDropdown(profileDropdown)">Dashboard</a>
             <a routerLink="/campaigns/new" class="site-header__panel-link" (click)="closeDropdown(profileDropdown)">Create Celebration</a>
-            <a routerLink="/pro/upgrade" class="site-header__panel-link" (click)="closeDropdown(profileDropdown)">Buy Credits</a>
+            <a routerLink="/pro/upgrade" class="site-header__panel-link" (click)="closeDropdown(profileDropdown)">Go Pro</a>
             <button type="button" class="site-header__panel-action" (click)="closeDropdown(profileDropdown); onLogout()">Logout</button>
           </div>
         </details>

@@ -11,6 +11,18 @@
           {{ activeCount() }} {{ activeCount() === 1 ? 'campaign' : 'campaigns' }} live now
         </p>
       }
+
+      <div class="campaign-list-search">
+        <label class="campaign-list-search__label" for="campaign-search">Search for a celebration</label>
+        <input
+          id="campaign-search"
+          class="campaign-list-search__input"
+          type="search"
+          placeholder="Search by title or URL slug"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+        />
+      </div>
     </div>
   </section>
 
@@ -34,9 +46,15 @@
         </div>
       }
 
-      @if (!loading() && !error() && campaigns().length > 0) {
+      @if (!loading() && !error() && campaigns().length > 0 && filteredCampaigns().length === 0) {
+        <div class="campaign-list-state">
+          <p>No campaigns match "{{ searchTerm() }}".</p>
+        </div>
+      }
+
+      @if (!loading() && !error() && filteredCampaigns().length > 0) {
         <div class="campaign-list-grid">
-          @for (campaign of campaigns(); track campaign.id) {
+          @for (campaign of filteredCampaigns(); track campaign.id) {
             <app-campaign-card
               [campaign]="campaign"
               mode="public"

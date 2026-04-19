@@ -13,6 +13,8 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { environment } from '../../../../environments/environment';
 import { PayPalSdkService, PayPalNamespace } from '../../../core/services/paypal-sdk.service';
 
+const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
+
 @Component({
   selector: 'app-upgrade-payment',
   standalone: true,
@@ -26,7 +28,7 @@ import { PayPalSdkService, PayPalNamespace } from '../../../core/services/paypal
         <p class="payment-card__eyebrow">Campaign Access</p>
         <h1 class="payment-card__heading">Choose a payment method</h1>
         <p class="payment-card__sub">
-          This is a one-time $9.99 payment for one campaign credit.
+          This is a one-time $9.99 payment to unlock Pro for one campaign.
         </p>
 
         <div class="order-summary" aria-label="Order summary">
@@ -39,8 +41,8 @@ import { PayPalSdkService, PayPalNamespace } from '../../../core/services/paypal
             <span class="order-summary__value">One-time payment</span>
           </div>
           <div class="order-summary__row">
-            <span class="order-summary__label">Credits</span>
-            <span class="order-summary__value">1 campaign credit</span>
+            <span class="order-summary__label">Access</span>
+            <span class="order-summary__value">One Pro campaign</span>
           </div>
           <div class="order-summary__row order-summary__row--total">
             <span class="order-summary__label">Total</span>
@@ -87,8 +89,6 @@ import { PayPalSdkService, PayPalNamespace } from '../../../core/services/paypal
         @if (error()) {
           <div class="payment-error" role="alert">{{ error() }}</div>
         }
-
-        <p class="payment-card__note">One payment adds one campaign credit.</p>
       </div>
     </div>
   `,
@@ -237,6 +237,7 @@ export class UpgradePaymentComponent {
 
       const origin = window.location.origin;
       const campaignId = this.upgradeCampaignId();
+      this.persistPendingUpgradeCampaign(campaignId);
       const query = campaignId ? `?campaignId=${encodeURIComponent(campaignId)}` : '';
       const successUrl = `${origin}/pro/upgrade/success${query}`;
       const cancelUrl = `${origin}/pro/upgrade/payment${query}`;
@@ -271,6 +272,7 @@ export class UpgradePaymentComponent {
 
       const origin = window.location.origin;
       const campaignId = this.upgradeCampaignId();
+      this.persistPendingUpgradeCampaign(campaignId);
       const query = campaignId ? `?campaignId=${encodeURIComponent(campaignId)}` : '';
       const data = await startPayPalCheckout(session.access_token, {
         successUrl: `${origin}/pro/upgrade/success${query}`,
@@ -341,6 +343,7 @@ export class UpgradePaymentComponent {
 
         const origin = window.location.origin;
         const campaignId = this.upgradeCampaignId();
+        this.persistPendingUpgradeCampaign(campaignId);
         const query = campaignId ? `?campaignId=${encodeURIComponent(campaignId)}` : '';
         const response = await startPayPalCheckout(session.access_token, {
           successUrl: `${origin}/pro/upgrade/success${query}`,
@@ -360,14 +363,19 @@ export class UpgradePaymentComponent {
           throw new Error('Venmo order ID missing after approval.');
         }
 
-        const { error } = await this.supabase.client.functions.invoke('confirm-paypal-campaign-payment', {
+        const { data: confirmation, error } = await this.supabase.client.functions.invoke<{
+          upgradedCampaignId?: string | null;
+        }>('confirm-paypal-campaign-payment', {
           body: { orderId },
         });
         if (error) {
           throw new Error(error.message || 'Failed to confirm the Venmo payment.');
         }
 
-        window.location.href = `${window.location.origin}/pro/upgrade/success?provider=venmo&confirmed=true&token=${encodeURIComponent(orderId)}`;
+        const upgradedCampaignId = confirmation?.upgradedCampaignId
+          ? `&upgradedCampaignId=${encodeURIComponent(confirmation.upgradedCampaignId)}`
+          : '';
+        window.location.href = `${window.location.origin}/pro/upgrade/success?provider=venmo&confirmed=true&token=${encodeURIComponent(orderId)}${upgradedCampaignId}`;
       },
       onCancel: () => {
         this.error.set('Venmo payment was cancelled.');
@@ -376,6 +384,18 @@ export class UpgradePaymentComponent {
         this.error.set(error instanceof Error ? error.message : 'Venmo checkout failed.');
       },
     });
+  }
+
+  private persistPendingUpgradeCampaign(campaignId: string | null): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    if (campaignId) {
+      window.sessionStorage.setItem(PENDING_PRO_UPGRADE_CAMPAIGN_KEY, campaignId);
+    } else {
+      window.sessionStorage.removeItem(PENDING_PRO_UPGRADE_CAMPAIGN_KEY);
+    }
   }
 }
 

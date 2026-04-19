@@ -61,7 +61,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       .from('user_profiles')
       .select('stripe_account_id')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError) {
       console.error('[stripe-connect-callback] Profile fetch error:', profileError.message);
@@ -72,7 +72,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     if (!stripeAccountId) {
       // No connected account yet — onboarding hasn't started.
-      return respond(200, { complete: false }, true);
+      return respond(200, { complete: false });
     }
 
     // ── Check onboarding status with Stripe ──────────────────────────────
@@ -103,7 +103,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         .is('stripe_account_id', null);
     }
 
-    return respond(200, { complete }, true);
+    return respond(200, { complete });
 
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -127,13 +127,12 @@ function corsHeaders(): Record<string, string> {
 function respond(
   status: number,
   body: Record<string, unknown>,
-  cors = false,
 ): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       'Content-Type': 'application/json',
-      ...(cors ? corsHeaders() : {}),
+      ...corsHeaders(),
     },
   });
 }

@@ -10,7 +10,7 @@
       <h1 class="mt-4 text-3xl font-bold text-text-dark">Create a campaign</h1>
       <p class="mt-1 text-text-muted">
         @if (canCreatePaidCampaign()) {
-          You have a paid campaign credit available. This campaign will be created as Pro.
+          Pro access is available. This campaign will be created as Pro.
         } @else {
           Start with a free campaign. You can upgrade a campaign later if you need more features.
         }
@@ -172,18 +172,13 @@
                 <svg class="w-5 h-5 text-pro" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
                 </svg>
-                <span class="text-sm font-semibold text-text-mid">Credit ready to use</span>
+                <span class="text-sm font-semibold text-text-mid">Pro ready to use</span>
               </div>
 
               <ul class="locked-section__features">
                 <li class="locked-feature">
                   <div class="locked-feature__field locked-feature__field--active">
                     <span class="locked-feature__label">This campaign will be created as Pro</span>
-                  </div>
-                </li>
-                <li class="locked-feature">
-                  <div class="locked-feature__field locked-feature__field--active">
-                    <span class="locked-feature__label">Credits remaining after creation: {{ campaignCredits() - 1 }}</span>
                   </div>
                 </li>
               </ul>

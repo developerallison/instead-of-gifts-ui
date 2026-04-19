@@ -4,7 +4,7 @@
       <p class="upgrade-hero__eyebrow">Campaign Access</p>
       <h1 class="upgrade-hero__heading">Pay first, then create one campaign</h1>
       <p class="upgrade-hero__sub">
-        Start free, then buy a one-time campaign credit only when you want the extra polish.
+        Start free, then unlock Pro only when you want the extra polish.
       </p>
     </div>
   </div>
@@ -46,7 +46,7 @@
       <section class="plan-card plan-card--pro" aria-label="Campaign Pro plan">
         <div class="plan-card__badge">One time</div>
         <div class="plan-card__header">
-          <p class="plan-card__name plan-card__name--pro">Campaign Credit</p>
+          <p class="plan-card__name plan-card__name--pro">Campaign Pro</p>
           <div class="plan-card__price">
             <span class="plan-card__amount">$9.99</span>
             <span class="plan-card__period">one campaign</span>
@@ -66,9 +66,11 @@
         </ul>
 
         <div class="plan-card__footer">
-          <div class="campaign-picker__status">
-            Credits available: <strong>{{ campaignCredits() }}</strong>
-          </div>
+          @if (campaignCredits() > 0) {
+            <div class="campaign-picker__status">
+              Pro access is already available for one campaign.
+            </div>
+          }
 
           <app-button
             variant="pro"
@@ -81,8 +83,6 @@
             </svg>
             Continue - $9.99
           </app-button>
-
-          <p class="plan-card__cancel-note">One payment adds one campaign credit.</p>
         </div>
       </section>
     </div>
@@ -100,14 +100,14 @@
         <div class="faq-item">
           <dt class="faq-item__q">What does one payment include?</dt>
           <dd class="faq-item__a">
-            One campaign creation credit. Using that credit creates one Pro campaign.
+            One Pro unlock for one campaign.
           </dd>
         </div>
 
         <div class="faq-item">
           <dt class="faq-item__q">Can I buy another campaign later?</dt>
           <dd class="faq-item__a">
-            Yes. Each additional payment adds one more campaign credit.
+            Yes. Each additional payment unlocks Pro for another campaign.
           </dd>
         </div>
       </dl>

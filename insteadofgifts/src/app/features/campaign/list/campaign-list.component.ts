@@ -27,9 +27,19 @@ export class CampaignListComponent implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly campaigns = signal<Campaign[]>([]);
+  readonly searchTerm = signal('');
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly activeCount = computed(() => this.campaigns().length);
+  readonly filteredCampaigns = computed(() => {
+    const query = this.searchTerm().trim().toLowerCase();
+    if (!query) return this.campaigns();
+
+    return this.campaigns().filter((campaign) =>
+      campaign.title.toLowerCase().includes(query) ||
+      campaign.slug.toLowerCase().includes(query)
+    );
+  });
 
   async ngOnInit(): Promise<void> {
     try {
@@ -81,5 +91,10 @@ export class CampaignListComponent implements OnInit {
       document.execCommand('copy');
       document.body.removeChild(el);
     }
+  }
+
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    this.searchTerm.set(target?.value ?? '');
   }
 }

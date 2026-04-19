@@ -65,34 +65,53 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return respond(403, { error: 'PayPal order does not belong to this user.' });
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('campaign_pro_credits')
-      .eq('id', user.id)
-      .maybeSingle();
+    const upgradeCampaignId = getUpgradeCampaignId(order);
 
-    if (profileError) {
-      return respond(500, { error: `Failed to load user profile: ${profileError.message}` });
+    const { data, error: grantError } = await supabase
+      .rpc('grant_campaign_credit_if_unprocessed', {
+        p_user_id: user.id,
+        p_payment_provider: 'paypal',
+        p_payment_reference: orderId,
+        p_granted_credits: 1,
+        p_pro_payment_provider: 'paypal',
+        p_pro_since: new Date().toISOString(),
+      })
+      .single();
+
+    if (grantError) {
+      return respond(500, { error: `Failed to add campaign credit: ${grantError.message}` });
     }
 
-    const nextCredits = (profile?.campaign_pro_credits ?? 0) + 1;
-    const { error: updateError } = await supabase
-      .from('user_profiles')
-      .upsert(
-        {
-          id: user.id,
-          campaign_pro_credits: nextCredits,
-          pro_payment_provider: 'paypal',
-          pro_since: new Date().toISOString(),
-        },
-        { onConflict: 'id' },
-      );
+    const grantResult = (data ?? null) as { campaign_pro_credits?: number } | null;
+    let campaignCredits = grantResult?.campaign_pro_credits ?? 0;
+    let upgradedCampaignId: string | null = null;
 
-    if (updateError) {
-      return respond(500, { error: `Failed to add campaign credit: ${updateError.message}` });
+    if (upgradeCampaignId) {
+      const { data: upgradedCampaign, error: upgradeError } = await supabase
+        .rpc('upgrade_paid_campaign_for_user', {
+          p_user_id: user.id,
+          p_campaign_id: upgradeCampaignId,
+        })
+        .single();
+
+      if (upgradeError) {
+        return respond(500, { error: `Payment confirmed, but campaign upgrade failed: ${upgradeError.message}` });
+      }
+
+      upgradedCampaignId = ((upgradedCampaign as { id?: string } | null)?.id ?? upgradeCampaignId);
+
+      const { data: profileAfterUpgrade, error: profileAfterUpgradeError } = await supabase
+        .from('user_profiles')
+        .select('campaign_pro_credits')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profileAfterUpgradeError) {
+        campaignCredits = profileAfterUpgrade?.campaign_pro_credits ?? campaignCredits;
+      }
     }
 
-    return respond(200, { confirmed: true, orderId, campaignCredits: nextCredits });
+    return respond(200, { confirmed: true, orderId, campaignCredits, upgradedCampaignId });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return respond(500, { error: message });
@@ -151,6 +170,13 @@ function getCreditedUserId(order: Record<string, unknown>): string | null {
     ? order.purchase_units as Array<{ custom_id?: string }>
     : [];
   return purchaseUnits[0]?.custom_id?.trim() ?? null;
+}
+
+function getUpgradeCampaignId(order: Record<string, unknown>): string | null {
+  const purchaseUnits = Array.isArray(order.purchase_units)
+    ? order.purchase_units as Array<{ reference_id?: string }>
+    : [];
+  return purchaseUnits[0]?.reference_id?.trim() ?? null;
 }
 
 function getPayPalIssue(payload: unknown): string | null {

@@ -106,7 +106,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     if (upgradeCampaignId) {
       const { data: upgradedCampaign, error: upgradeError } = await supabase
-        .rpc('upgrade_paid_campaign', { p_campaign_id: upgradeCampaignId })
+        .rpc('upgrade_paid_campaign_for_user', {
+          p_user_id: user.id,
+          p_campaign_id: upgradeCampaignId,
+        })
         .single();
 
       if (upgradeError) {

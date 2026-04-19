@@ -40,7 +40,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return respond(401, { error: 'Invalid or expired token' });
   }
 
-  let body: { successUrl?: string; cancelUrl?: string };
+  let body: { successUrl?: string; cancelUrl?: string; campaignId?: string | null };
   try {
     body = await req.json();
   } catch {
@@ -49,6 +49,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const successUrl = body.successUrl?.trim();
   const cancelUrl = body.cancelUrl?.trim();
+  const campaignId = body.campaignId?.trim() || null;
   if (!successUrl || !cancelUrl) {
     return respond(400, { error: 'successUrl and cancelUrl are required' });
   }
@@ -66,6 +67,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         purchase_units: [
           {
             custom_id: user.id,
+            reference_id: campaignId ?? undefined,
             description: 'One prepaid credit to create a Campaign Pro campaign.',
             amount: {
               currency_code: 'USD',

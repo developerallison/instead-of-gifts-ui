@@ -51,6 +51,36 @@
   font-weight: 700;
 }
 
+.campaign-list-search {
+  max-width: 34rem;
+  margin-top: 1.35rem;
+}
+
+.campaign-list-search__label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #4e6759;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.campaign-list-search__input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid #cedccf;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #22352a;
+  font-size: 0.98rem;
+  box-shadow: 0 10px 24px rgba(44, 67, 55, 0.08);
+}
+
+.campaign-list-search__input:focus {
+  outline: 2px solid rgba(149, 196, 118, 0.45);
+  outline-offset: 2px;
+  border-color: #95c476;
+}
+
 .campaign-list-content {
   padding: 0.5rem 0 4rem;
 }

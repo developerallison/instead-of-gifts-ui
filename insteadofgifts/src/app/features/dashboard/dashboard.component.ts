@@ -50,6 +50,8 @@ interface StripeConnectStatus {
   onboardingComplete: boolean;
 }
 
+const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -126,6 +128,7 @@ export class DashboardComponent implements OnInit {
         this.loadStripeConnectStatus(connectParam === 'success'),
       ]);
       await this.proSvc.loadProfile();
+      const upgradedCampaignId = await this.consumePendingPaidUpgrade(campaigns);
 
       // Parallel fetch of live totals
       const totalsArr = await Promise.all(
@@ -136,7 +139,7 @@ export class DashboardComponent implements OnInit {
 
       this.rows.set(
         campaigns.map((c, i) => ({
-          campaign:        c,
+          campaign:        c.id === upgradedCampaignId ? { ...c, isPro: true } : c,
           totals:          totalsArr[i],
           campaignUrl:     origin ? `${origin}/campaigns/${c.slug}` : '',
            copySuccess:     false,
@@ -376,11 +379,13 @@ export class DashboardComponent implements OnInit {
   async onConnectStripe(): Promise<void> {
     if (this.connectLoading()) return;
     this.connectLoading.set(true);
+    this.error.set(null);
     try {
       await this.stripeSvc.startConnectOnboarding();
       // Hard-redirects to Stripe — execution stops here on success.
     } catch (e) {
       console.error('[dashboard] Failed to start Connect onboarding:', e);
+      this.error.set(e instanceof Error ? e.message : 'Failed to start Stripe onboarding.');
     } finally {
       this.connectLoading.set(false);
     }
@@ -434,6 +439,28 @@ export class DashboardComponent implements OnInit {
         row.campaign.id === id ? { ...row, ...patch } : row
       )
     );
+  }
+
+  private async consumePendingPaidUpgrade(campaigns: Campaign[]): Promise<string | null> {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    const pendingCampaignId = window.sessionStorage.getItem(PENDING_PRO_UPGRADE_CAMPAIGN_KEY);
+    if (!pendingCampaignId || this.campaignCredits() <= 0) {
+      return null;
+    }
+
+    const pendingCampaign = campaigns.find((campaign) => campaign.id === pendingCampaignId);
+    if (!pendingCampaign || pendingCampaign.isPro) {
+      window.sessionStorage.removeItem(PENDING_PRO_UPGRADE_CAMPAIGN_KEY);
+      return null;
+    }
+
+    const upgradedCampaign = await this.campaignSvc.upgradeCampaignWithCredit(pendingCampaignId);
+    await this.proSvc.loadProfile();
+    window.sessionStorage.removeItem(PENDING_PRO_UPGRADE_CAMPAIGN_KEY);
+    return upgradedCampaign.id;
   }
 
 }

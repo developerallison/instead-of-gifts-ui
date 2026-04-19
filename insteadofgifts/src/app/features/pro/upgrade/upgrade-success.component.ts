@@ -2,13 +2,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  PLATFORM_ID,
   inject,
   signal,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { CampaignService } from '../../../core/services/campaign.service';
 import { ProService } from '../../../core/services/pro.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
+
+const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
 
 @Component({
   selector: 'app-upgrade-success',
@@ -36,8 +41,7 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
             @if (error()) {
               {{ error() }}
             } @else {
-              You now have {{ campaignCredits() }} campaign credit{{ campaignCredits() === 1 ? '' : 's' }}.
-              Create your campaign now.
+              {{ confirmationMessage() }}
             }
           </p>
           <app-button variant="pro" size="md" [routerLink]="['/dashboard']">
@@ -104,6 +108,8 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
   `],
 })
 export class UpgradeSuccessComponent implements OnInit {
+  private readonly campaignSvc = inject(CampaignService);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly supabase = inject(SupabaseService);
   private readonly proSvc = inject(ProService);
 
@@ -111,6 +117,7 @@ export class UpgradeSuccessComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly campaignCredits = this.proSvc.campaignCredits;
   readonly upgradedCampaignId = signal<string | null>(null);
+  readonly confirmationMessage = signal('Payment complete.');
 
   async ngOnInit(): Promise<void> {
     const url = new URL(window.location.href);
@@ -118,35 +125,83 @@ export class UpgradeSuccessComponent implements OnInit {
     const sessionId = url.searchParams.get('session_id');
     const paypalOrderId = url.searchParams.get('token');
     const alreadyConfirmed = url.searchParams.get('confirmed') === 'true';
+    const campaignId = url.searchParams.get('campaignId') ?? this.getPendingUpgradeCampaignId();
+    const upgradedCampaignIdFromUrl = url.searchParams.get('upgradedCampaignId');
 
     try {
       if ((provider === 'paypal' || provider === 'venmo') && paypalOrderId && !alreadyConfirmed) {
         const { data, error } = await this.supabase.client.functions.invoke<{
+          campaignCredits?: number;
           upgradedCampaignId?: string | null;
         }>('confirm-paypal-campaign-payment', {
           body: { orderId: paypalOrderId },
         });
         if (error) throw new Error(error.message || 'Failed to confirm the PayPal payment.');
         this.upgradedCampaignId.set(data?.upgradedCampaignId ?? null);
+        this.updateConfirmationMessage(data?.campaignCredits ?? this.campaignCredits(), data?.upgradedCampaignId ?? null);
       } else if (provider === 'venmo' && alreadyConfirmed) {
-        // Venmo confirms inside the SDK approval step before redirecting here.
+        this.upgradedCampaignId.set(upgradedCampaignIdFromUrl);
       } else if (sessionId) {
         const { data, error } = await this.supabase.client.functions.invoke<{
+          campaignCredits?: number;
           upgradedCampaignId?: string | null;
         }>('confirm-stripe-campaign-payment', {
           body: { sessionId },
         });
         if (error) throw new Error(error.message || 'Failed to confirm the Stripe payment.');
         this.upgradedCampaignId.set(data?.upgradedCampaignId ?? null);
+        this.updateConfirmationMessage(data?.campaignCredits ?? this.campaignCredits(), data?.upgradedCampaignId ?? null);
       } else {
         throw new Error('Missing payment confirmation details in the return URL.');
       }
 
       await this.proSvc.loadProfile();
+      await this.autoUpgradeCampaignIfNeeded(campaignId);
+      this.updateConfirmationMessage(this.campaignCredits(), this.upgradedCampaignId());
+      this.clearPendingUpgradeCampaign();
     } catch (err: unknown) {
       this.error.set(err instanceof Error ? err.message : 'Failed to confirm the campaign payment.');
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private updateConfirmationMessage(campaignCredits: number, upgradedCampaignId: string | null): void {
+    if (upgradedCampaignId) {
+      this.confirmationMessage.set('Your campaign is now Pro. No extra steps are needed.');
+      return;
+    }
+
+    this.confirmationMessage.set('Payment complete. Your Pro access is ready.');
+  }
+
+  private async autoUpgradeCampaignIfNeeded(campaignId: string | null): Promise<void> {
+    if (!campaignId || this.upgradedCampaignId()) {
+      return;
+    }
+
+    if (this.campaignCredits() <= 0) {
+      return;
+    }
+
+    const upgradedCampaign = await this.campaignSvc.upgradeCampaignWithCredit(campaignId);
+    this.upgradedCampaignId.set(upgradedCampaign.id);
+    await this.proSvc.loadProfile();
+  }
+
+  private getPendingUpgradeCampaignId(): string | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    return window.sessionStorage.getItem(PENDING_PRO_UPGRADE_CAMPAIGN_KEY);
+  }
+
+  private clearPendingUpgradeCampaign(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    window.sessionStorage.removeItem(PENDING_PRO_UPGRADE_CAMPAIGN_KEY);
   }
 }

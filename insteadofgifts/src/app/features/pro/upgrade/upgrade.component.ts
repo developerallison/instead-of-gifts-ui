@@ -36,7 +36,7 @@ export class UpgradeComponent {
   ];
 
   readonly proFeatures: PlanFeature[] = [
-    { label: 'Campaign Pro upgrade ($9.99 each)', included: true },
+    { label: 'Campaign Pro unlock ($9.99 each)', included: true },
     { label: 'Shareable campaign link', included: true },
     { label: 'Contribution tracking', included: true },
     { label: 'Cover photos', included: true },

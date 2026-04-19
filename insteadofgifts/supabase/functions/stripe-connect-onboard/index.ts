@@ -15,6 +15,9 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 // Initialise clients once (module-level — reused across warm invocations)
 // ---------------------------------------------------------------------------
 
+const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
+const STRIPE_CONNECT_COUNTRY = Deno.env.get('STRIPE_CONNECT_COUNTRY') ?? 'US';
+
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
   httpClient: Stripe.createFetchHttpClient(),
   apiVersion: '2025-03-31.basil',
@@ -39,6 +42,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return respond(405, { error: 'Method not allowed' });
   }
 
+  if (!STRIPE_SECRET_KEY) {
+    return respond(500, { error: 'Stripe is not configured. Set STRIPE_SECRET_KEY in Supabase secrets.' });
+  }
+
   // ── Authenticate the caller ──────────────────────────────────────────────
   const jwt = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
   if (!jwt) {
@@ -59,7 +66,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       .from('user_profiles')
       .select('stripe_account_id')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError) {
       console.error('[stripe-connect-onboard] Profile fetch error:', profileError.message);
@@ -71,14 +78,21 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (!stripeAccountId) {
       const account = await stripe.accounts.create({
         type: 'express',
+        country: STRIPE_CONNECT_COUNTRY,
+        email: user.email ?? undefined,
         metadata: { supabase_user_id: user.id },
       });
       stripeAccountId = account.id;
 
       const { error: updateError } = await supabaseAdmin
         .from('user_profiles')
-        .update({ stripe_account_id: stripeAccountId })
-        .eq('id', user.id);
+        .upsert(
+          {
+            id: user.id,
+            stripe_account_id: stripeAccountId,
+          },
+          { onConflict: 'id' },
+        );
 
       if (updateError) {
         console.error('[stripe-connect-onboard] Profile update error:', updateError.message);
@@ -102,7 +116,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       `account ${stripeAccountId}`
     );
 
-    return respond(200, { url: accountLink.url }, true);
+    return respond(200, { url: accountLink.url });
 
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -126,13 +140,12 @@ function corsHeaders(): Record<string, string> {
 function respond(
   status: number,
   body: Record<string, unknown>,
-  cors = false,
 ): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       'Content-Type': 'application/json',
-      ...(cors ? corsHeaders() : {}),
+      ...corsHeaders(),
     },
   });
 }
