@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withPreloading, PreloadAllModules, withComponentInputBinding } from '@angular/router';
+import { provideRouter, withPreloading, PreloadAllModules, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 
@@ -9,7 +9,7 @@ import { supabaseImageLoader } from './core/loaders/supabase-image.loader';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
+    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
     supabaseImageLoader,
   ],

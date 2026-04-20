@@ -17,7 +17,7 @@ import {
   lucideCake,
   lucideTrees,
   lucideGraduationCap,
-  lucidePalmtree,
+  lucideTreePalm,
 } from '@ng-icons/lucide';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 
@@ -32,8 +32,8 @@ export interface PricingFeature {
   label:    string;
   /** null = not included; '' = included; non-empty string = included with note */
   freeNote: string | null;
-  /** '' = included; non-empty string = included with note */
-  proNote:  string;
+  /** null = not included; '' = included; non-empty string = included with note */
+  proNote:  string | null;
 }
 
 export interface Occasion {
@@ -60,7 +60,7 @@ export interface Occasion {
       lucideCake,
       lucideTrees,
       lucideGraduationCap,
-      lucidePalmtree,
+      lucideTreePalm,
     }),
   ],
   templateUrl: './home.component.html',
@@ -93,17 +93,17 @@ export class HomeComponent {
     { icon: 'lucideCake',           label: 'Birthdays'  },
     { icon: 'lucideTrees',          label: 'Holidays'   },
     { icon: 'lucideGraduationCap',  label: 'Graduation' },
-    { icon: 'lucidePalmtree',       label: 'Retirement' },
+    { icon: 'lucideTreePalm',       label: 'Retirement' },
   ];
 
   readonly pricingFeatures: PricingFeature[] = [
-    { label: 'Campaign Pro upgrade',       freeNote: null,       proNote: '$9.99 each'  },
-    { label: 'Shareable campaign link',    freeNote: '',         proNote: ''           },
-    { label: 'Contribution tracking',      freeNote: '',         proNote: ''           },
-    { label: 'Cover photos',               freeNote: null,       proNote: ''           },
-    { label: 'Custom thank-you message',   freeNote: null,       proNote: ''           },
-    { label: 'QR code sharing',            freeNote: null,       proNote: ''           },
-    { label: 'Priority support',           freeNote: null,       proNote: ''           },
+    { label: 'Custom title',                          freeNote: '',         proNote: ''           },
+    { label: 'Shareable link',                         freeNote: '',         proNote: ''           },
+    { label: 'Contribution tracking',                  freeNote: '',         proNote: ''           },
+    { label: 'Standard message for fund use',          freeNote: '',         proNote: null           },
+    { label: 'Personalized message for fund use',      freeNote: null,       proNote: ''           },
+    { label: 'QR code',                                freeNote: null,       proNote: ''           },
+    { label: 'Photo',                                  freeNote: null,       proNote: ''           },
   ];
 
   readonly year = new Date().getFullYear();
@@ -124,5 +124,9 @@ export class HomeComponent {
 
   proLabel(f: PricingFeature): string {
     return f.proNote ? `${f.label} (${f.proNote})` : f.label;
+  }
+
+  proIncluded(f: PricingFeature): boolean {
+    return f.proNote !== null;
   }
 }

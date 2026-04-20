@@ -33,7 +33,7 @@
   // ── Locked state: blur the canvas beneath the overlay ──────────────────
   &--locked {
     .qr-canvas {
-      filter: blur(6px);
+      filter: blur(4px);
       // Prevent the blurred image from being tab-focused or screen-reader-read
       pointer-events: none;
       user-select: none;
@@ -64,9 +64,10 @@
   gap: 0.45rem;
   padding: 0.75rem;
   // Frosted-glass feel — semi-transparent white + backdrop blur
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  // Light enough to let the blurred QR pattern show through
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   text-align: center;
 }
 

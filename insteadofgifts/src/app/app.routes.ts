@@ -36,6 +36,20 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/pro/pro.routes').then((m) => m.PRO_ROUTES),
       },
+      {
+        path: 'terms',
+        loadComponent: () =>
+          import('./features/legal/terms/terms.component').then(
+            (m) => m.TermsComponent
+          ),
+      },
+      {
+        path: 'privacy',
+        loadComponent: () =>
+          import('./features/legal/privacy/privacy.component').then(
+            (m) => m.PrivacyComponent
+          ),
+      },
     ],
   },
 

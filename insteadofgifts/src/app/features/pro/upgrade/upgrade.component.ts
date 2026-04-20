@@ -26,23 +26,22 @@ export class UpgradeComponent {
   readonly campaignCredits = inject(ProService).campaignCredits;
 
   readonly freeFeatures: PlanFeature[] = [
-    { label: 'Campaign Pro upgrade', included: false },
-    { label: 'Shareable campaign link', included: true },
+    { label: 'Custom title', included: true },
+    { label: 'Shareable link', included: true },
     { label: 'Contribution tracking', included: true },
-    { label: 'Cover photos', included: false },
-    { label: 'Custom thank-you message', included: false },
-    { label: 'QR code sharing', included: false },
-    { label: 'Priority support', included: false },
+    { label: 'Standard message for fund use', included: true },
+    { label: 'Personalized message for fund use', included: false },
+    { label: 'QR code', included: false },
+    { label: 'Photo', included: false },
   ];
 
   readonly proFeatures: PlanFeature[] = [
-    { label: 'Campaign Pro unlock ($9.99 each)', included: true },
-    { label: 'Shareable campaign link', included: true },
+    { label: 'Custom title', included: true },
+    { label: 'Shareable link', included: true },
     { label: 'Contribution tracking', included: true },
-    { label: 'Cover photos', included: true },
-    { label: 'Custom thank-you message', included: true },
-    { label: 'QR code sharing', included: true },
-    { label: 'Priority support', included: true },
+    { label: 'Personalized message for fund use', included: true },
+    { label: 'QR code', included: true },
+    { label: 'Photo', included: true },
   ];
 
   async onContinueFree(): Promise<void> {

@@ -82,7 +82,7 @@
   // mint (#C3DEA7) on forest bg = ~2.88:1 — FAILS WCAG AA.
   // Use near-white at 0.88 opacity: white on forest = 5.48:1, so rgba still passes.
   color: rgba(255, 255, 255, 0.88);
-  margin-bottom: 1.5rem;
+  margin-bottom: 3rem;
 
   ng-icon { opacity: 0.75; }
 }
@@ -93,7 +93,22 @@
   line-height: var(--leading-tight);
   letter-spacing: -0.03em;
   color: #fff;
-  margin-bottom: 1.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.hero__heading-accent {
+  color: var(--color-brand-green);
+}
+
+.hero__logo-icon {
+  width: clamp(4rem, 9vw, 6.5rem);
+  height: clamp(4rem, 9vw, 6.5rem);
+  flex-shrink: 0;
+  transform: translateY(-0.75rem);
 }
 
 .hero__sub {
@@ -103,6 +118,40 @@
   color: rgba(255, 255, 255, 0.85);
   max-width: 540px;
   margin: 0 auto 2.75rem;
+  text-align: left;
+}
+
+.hero__card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 1rem;
+  padding: 1.5rem 1.75rem;
+  max-width: 580px;
+  margin: 0 auto 2.75rem;
+  backdrop-filter: blur(6px);
+  text-align: left;
+}
+
+.hero__card-text {
+  font-size: clamp(0.9375rem, 1.8vw, 1.0625rem);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+
+  & + & {
+    margin-top: 0.75rem;
+  }
+
+  strong {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  em {
+    color: var(--color-brand-green, #C3DEA7);
+    font-style: normal;
+    font-weight: 600;
+  }
 }
 
 .hero__ctas {
@@ -111,6 +160,18 @@
   justify-content: center;
   gap: 1.25rem;
   flex-wrap: wrap;
+}
+
+.hero__search-btn {
+  ::ng-deep button {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.7) !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.28) !important;
+    }
+  }
 }
 
 .hero__link-cta {
@@ -562,6 +623,64 @@
 
 .occasion-card__icon {
   opacity: 0.9;
+}
+
+// ── WHAT YOUR GIFTS CAN BECOME ───────────────────────────────────────────────
+
+.gifts-become-section {
+  background: #cdecd2;
+  padding: 4rem 0 4.5rem;
+  border-top: 1px solid rgba(92, 78, 62, 0.08);
+
+  @media (max-width: 767px) { padding: 3rem 0 3.5rem; }
+}
+
+.gifts-become-section__heading {
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  font-weight: 700;
+  color: var(--color-text-dark);
+  text-align: center;
+  letter-spacing: -0.02em;
+  margin-bottom: 2.5rem;
+}
+
+.gifts-become-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 3rem;
+  max-width: 640px;
+  margin: 0 auto;
+
+  @media (max-width: 540px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+.gifts-become-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.gifts-become-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  padding: 0.55rem 0;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234A7255'%3E%3Cpath fill-rule='evenodd' d='M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
 }
 
 .occasion-card__label {

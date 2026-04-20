@@ -24,13 +24,6 @@ import { Campaign, CampaignFundUse } from '../../../core/models/campaign.model';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { ImageUploadComponent } from '../../../shared/components/image-upload/image-upload.component';
 
-/** Rejects values < 1 only when a value is present (allows null/empty). */
-function positiveAmountValidator(control: AbstractControl): ValidationErrors | null {
-  const v = control.value;
-  if (v === null || v === '' || v === undefined) return null;
-  return Number(v) >= 1 ? null : { positiveAmount: true };
-}
-
 /** Rejects past dates. */
 function futureDateValidator(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
@@ -43,7 +36,6 @@ export interface EditCampaignForm {
   title:         FormControl<string>;
   description:   FormControl<string>;
   fundUse:       FormControl<CampaignFundUse | null>;
-  targetAmount:  FormControl<number | null>;
   deadline:      FormControl<string | null>;
   customMessage: FormControl<string>;
 }
@@ -85,10 +77,8 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
       Validators.maxLength(500),
     ]),
     fundUse: this.fb.control<CampaignFundUse | null>(null),
-    targetAmount: this.fb.control<number | null>(null, [
-      positiveAmountValidator,
-    ]),
     deadline: this.fb.control<string | null>(null, [
+      Validators.required,
       futureDateValidator,
     ]),
     customMessage: this.fb.nonNullable.control('', [
@@ -144,8 +134,6 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
       title:         c.title,
       description:   c.description ?? '',
       fundUse:       c.fundUse ?? null,
-      // targetAmount stored in cents → convert to dollars for the form
-      targetAmount:  c.targetAmount > 0 ? c.targetAmount / 100 : null,
       // endsAt is an ISO string; extract date part for the <input type="date">
       deadline:      c.endsAt ? c.endsAt.split('T')[0] : null,
       customMessage: c.customMessage ?? '',
@@ -163,14 +151,13 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
     this.submitError.set(null);
 
     try {
-      const { title, description, fundUse, targetAmount, deadline, customMessage } =
+      const { title, description, fundUse, deadline, customMessage } =
         this.form.getRawValue();
 
       await this.campaignSvc.updateCampaign(c.id, {
         title,
         description:       description || undefined,
         fundUse:           fundUse ?? null,
-        targetAmountPence: targetAmount != null ? targetAmount * 100 : null,
         deadline:          deadline || null,
         customMessage:     c.isPro ? (customMessage || undefined) : undefined,
       });

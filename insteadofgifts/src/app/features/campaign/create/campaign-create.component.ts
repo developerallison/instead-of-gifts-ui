@@ -23,12 +23,6 @@ import { ProService } from '../../../core/services/pro.service';
 import { generateSlug } from '../../../core/utils/slug.util';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 
-function positiveAmountValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (value === null || value === '' || value === undefined) return null;
-  return Number(value) >= 1 ? null : { positiveAmount: true };
-}
-
 function futureDateValidator(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
   const chosen = new Date(control.value);
@@ -41,7 +35,6 @@ export interface CreateCampaignForm {
   title: FormControl<string>;
   description: FormControl<string>;
   fundUse: FormControl<CampaignFundUse | null>;
-  targetAmount: FormControl<number | null>;
   deadline: FormControl<string | null>;
 }
 
@@ -75,10 +68,8 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
       Validators.maxLength(500),
     ]),
     fundUse: this.fb.control<CampaignFundUse | null>(null),
-    targetAmount: this.fb.control<number | null>(null, [
-      positiveAmountValidator,
-    ]),
     deadline: this.fb.control<string | null>(null, [
+      Validators.required,
       futureDateValidator,
     ]),
   });
@@ -110,14 +101,13 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
     this.submitError.set(null);
 
     try {
-      const { title, description, fundUse, targetAmount, deadline } = this.form.getRawValue();
+      const { title, description, fundUse, deadline } = this.form.getRawValue();
       const usePaidCredit = this.canCreatePaidCampaign();
 
       await this.campaignSvc.createCampaign({
         title,
         description: description || undefined,
         fundUse: fundUse ?? null,
-        targetAmountPence: targetAmount != null ? targetAmount * 100 : null,
         deadline: deadline || null,
         usePaidCredit,
       });

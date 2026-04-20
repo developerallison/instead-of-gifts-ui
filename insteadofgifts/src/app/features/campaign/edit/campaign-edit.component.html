@@ -75,6 +75,7 @@
               </p>
             </div>
 
+            @if (campaign()!.isPro) {
             <div class="field">
               <label for="description" class="field__label">
                 Description <span class="field__optional">(optional)</span>
@@ -97,6 +98,7 @@
               </div>
               <p class="field__counter" aria-live="polite" aria-atomic="true">{{ descriptionLength }}&nbsp;/&nbsp;500</p>
             </div>
+            }
 
             <fieldset class="field field--fund-use">
               <legend class="field__label mb-2">Fund use</legend>
@@ -134,35 +136,10 @@
             </fieldset>
 
             <div class="field">
-              <label for="targetAmount" class="field__label">
-                Fundraising goal <span class="field__optional">(optional)</span>
-              </label>
-              <div class="field__currency-wrap">
-                <span class="field__currency-symbol" aria-hidden="true">$</span>
-                <input
-                  id="targetAmount"
-                  type="number"
-                  formControlName="targetAmount"
-                  min="1"
-                  step="1"
-                  placeholder="0"
-                  class="field__input field__input--currency"
-                  [class.field__input--error]="hasError('targetAmount', 'positiveAmount')"
-                  [attr.aria-invalid]="hasError('targetAmount', 'positiveAmount') || null"
-                  aria-describedby="targetAmount-errors"
-                />
-              </div>
-              <div id="targetAmount-errors" aria-live="polite">
-                @if (hasError('targetAmount', 'positiveAmount')) {
-                  <p class="field__error" role="alert">Goal must be at least $1.</p>
-                }
-              </div>
-              <p class="field__hint">Leave blank for an open-ended campaign.</p>
-            </div>
-
-            <div class="field">
               <label for="deadline" class="field__label">
-                End date <span class="field__optional">(optional)</span>
+                End date
+                <span class="text-error" aria-hidden="true">*</span>
+                <span class="sr-only">(required)</span>
               </label>
               <input
                 id="deadline"
@@ -180,6 +157,7 @@
                   <p class="field__error" role="alert">Please choose a future date.</p>
                 }
               </div>
+              <p class="field__hint">Access to the page will expire in 30 days after your celebration starts.</p>
             </div>
           </section>
 

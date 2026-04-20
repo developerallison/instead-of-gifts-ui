@@ -4,19 +4,17 @@
   <section class="hero" aria-label="Hero">
     <div class="hero__inner">
 
-      <p class="hero__eyebrow">
-        <ng-icon name="lucideHeart" size="14" aria-hidden="true" />
-        A better way to give
-      </p>
-
       <h1 class="hero__heading">
-        Ask for contributions,<br class="hidden sm:block">
-        not clutter.
+        <img src="/images/gift.svg" alt="" class="hero__logo-icon" aria-hidden="true" /><span>InsteadOfGifts</span>
       </h1>
 
+      <p class="hero__eyebrow">
+        <ng-icon name="lucideHeart" size="14" aria-hidden="true" />
+        Give meaning, not things.
+      </p>
+
       <p class="hero__sub">
-        Create a gift campaign in minutes. Share the link with friends and family.
-        Let them contribute to something that actually matters — no wrapping paper required.
+        InsteadOfGifts is a milestone-based gifting platform that replaces physical presents with contributions toward education, personal development, or experiences. Instead of more stuff, we help fund what actually matters — modernizing gift culture by turning short-term spending into long-term impact.
       </p>
 
       <div class="hero__ctas">
@@ -26,13 +24,20 @@
           [routerLink]="['/campaigns', 'new']"
         >
           <ng-icon name="lucidePencilLine" size="18" aria-hidden="true" />
-          Create a campaign
+          Create a celebration page
         </app-button>
 
-        <a [routerLink]="['/campaigns', 'all']" class="hero__link-cta">
-          Search for a celebration
-          <ng-icon name="lucideChevronDown" size="16" aria-hidden="true" />
-        </a>
+        <div class="hero__search-btn">
+          <app-button
+            variant="secondary"
+            size="lg"
+            [routerLink]="['/campaigns', 'all']"
+          >
+            <ng-icon name="lucideSearch" size="18" aria-hidden="true" />
+            Search for a celebration
+          </app-button>
+        </div>
+
       </div>
 
     </div>
@@ -48,7 +53,7 @@
   <section class="occasions-section" aria-labelledby="occasions-heading">
     <div class="section-inner">
       <h2 class="occasions-section__heading" id="occasions-heading">
-        For life's meaningful moments.
+        For life's meaningful moments
       </h2>
 
       <div class="occasions-grid" role="list">
@@ -64,32 +69,27 @@
     </div>
   </section>
 
-  <!-- ══ HOW IT WORKS ═════════════════════════════════════════════════════════ -->
-  @defer (on idle) {
-    <section id="how-it-works" class="steps-section" aria-labelledby="steps-heading">
-      <div class="section-inner">
+  <!-- ══ WHAT YOUR GIFTS CAN BECOME ══════════════════════════════════════════ -->
+  <section class="gifts-become-section" aria-labelledby="gifts-become-heading">
+    <div class="section-inner">
+      <h2 class="gifts-become-section__heading" id="gifts-become-heading">What Your Gifts Can Become</h2>
 
-        <h2 class="section-heading" id="steps-heading">How it works</h2>
-        <p class="section-sub">Three simple steps to the perfect group gift.</p>
-
-        <div class="steps-grid">
-          @for (step of steps; track step.step) {
-            <div class="step-card">
-              <div class="step-card__icon-wrap" aria-hidden="true">
-                <ng-icon [name]="step.icon" size="26" />
-              </div>
-              <p class="step-card__number">Step {{ step.step }}</p>
-              <h3 class="step-card__title">{{ step.title }}</h3>
-              <p class="step-card__body">{{ step.body }}</p>
-            </div>
-          }
-        </div>
-
+      <div class="gifts-become-grid">
+        <ul class="gifts-become-list" role="list">
+          <li class="gifts-become-item">Education funds</li>
+          <li class="gifts-become-item">Creative pursuits</li>
+          <li class="gifts-become-item">Travel experiences</li>
+          <li class="gifts-become-item">Daycare costs</li>
+        </ul>
+        <ul class="gifts-become-list" role="list">
+          <li class="gifts-become-item">First homes</li>
+          <li class="gifts-become-item">Retirement dreams</li>
+          <li class="gifts-become-item">Skill-building opportunities</li>
+          <li class="gifts-become-item">Traveling sports</li>
+        </ul>
       </div>
-    </section>
-  } @placeholder {
-    <div id="how-it-works" class="steps-section--placeholder" aria-hidden="true"></div>
-  }
+    </div>
+  </section>
 
   <!-- ══ PRICING ══════════════════════════════════════════════════════════════ -->
   @defer (on viewport) {
@@ -97,7 +97,7 @@
       <div class="section-inner">
 
         <h2 class="section-heading" id="pricing-heading">Simple, honest pricing</h2>
-        <p class="section-sub">Start for free. Upgrade individual campaigns only when you want the extra polish.</p>
+        <p class="section-sub">Start for free. Upgrade individual celebrations only when you want the extra polish.</p>
 
         <div class="pricing-grid">
 
@@ -107,7 +107,6 @@
               <h3 class="plan-card__name">Free</h3>
               <div class="plan-card__price">
                 <span class="plan-card__amount">$0</span>
-                <span class="plan-card__period">forever</span>
               </div>
               <p class="plan-card__tagline">Everything you need to get started.</p>
             </div>
@@ -145,25 +144,27 @@
             <div class="plan-card__badge">Most popular</div>
 
             <div class="plan-card__header">
-              <h3 class="plan-card__name">Campaign Pro</h3>
+              <h3 class="plan-card__name">Celebration Pro</h3>
               <div class="plan-card__price">
                 <span class="plan-card__amount">$9.99</span>
                 <span class="plan-card__period">each</span>
               </div>
-              <p class="plan-card__tagline">A one-time upgrade for one campaign.</p>
+              <p class="plan-card__tagline">A one-time upgrade for per celebration.</p>
             </div>
 
             <ul class="plan-card__features" role="list">
               @for (f of pricingFeatures; track f.label) {
-                <li class="plan-feature plan-feature--pro">
-                  <ng-icon
-                    name="lucideCheck"
-                    size="15"
-                    aria-hidden="true"
-                    class="plan-feature__icon plan-feature__icon--yes"
-                  />
-                  <span>{{ proLabel(f) }}</span>
-                </li>
+                @if (proIncluded(f)) {
+                  <li class="plan-feature plan-feature--pro">
+                    <ng-icon
+                      name="lucideCheck"
+                      size="15"
+                      aria-hidden="true"
+                      class="plan-feature__icon plan-feature__icon--yes"
+                    />
+                    <span>{{ proLabel(f) }}</span>
+                  </li>
+                }
               }
             </ul>
 
@@ -185,31 +186,6 @@
     </section>
   } @placeholder {
     <div class="pricing-section--placeholder" aria-hidden="true"></div>
-  }
-
-  <!-- ══ SOCIAL PROOF ═════════════════════════════════════════════════════════ -->
-  @defer (on viewport) {
-    <section class="proof-section" aria-labelledby="proof-heading">
-      <div class="section-inner">
-
-        <h2 class="section-heading" id="proof-heading">Trusted by gift-givers everywhere</h2>
-        <p class="section-sub">
-          Join thousands of families, friends, and colleagues who've ditched the guesswork.
-        </p>
-
-        <div class="proof-stats">
-          @for (stat of stats; track stat.label) {
-            <div class="proof-stat">
-              <p class="proof-stat__value">{{ stat.value }}</p>
-              <p class="proof-stat__label">{{ stat.label }}</p>
-            </div>
-          }
-        </div>
-
-      </div>
-    </section>
-  } @placeholder {
-    <div class="proof-section--placeholder" aria-hidden="true"></div>
   }
 
 </div>
