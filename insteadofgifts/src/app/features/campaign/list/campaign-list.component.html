@@ -1,17 +1,11 @@
 <div class="campaign-list-page">
   <section class="campaign-list-hero">
     <div class="campaign-list-hero__inner">
-      <p class="campaign-list-hero__eyebrow">Public Campaigns</p>
+      <p class="campaign-list-hero__eyebrow">Public Celebration</p>
       <h1 class="campaign-list-hero__title">Browse active celebrations</h1>
       <p class="campaign-list-hero__body">
-        Explore every currently active campaign that is available for contributions.
+        Explore every currently active celebration that is available for contributions.
       </p>
-      @if (!loading() && !error()) {
-        <p class="campaign-list-hero__meta">
-          {{ activeCount() }} {{ activeCount() === 1 ? 'campaign' : 'campaigns' }} live now
-        </p>
-      }
-
       <div class="campaign-list-search">
         <label class="campaign-list-search__label" for="campaign-search">Search for a celebration</label>
         <input

@@ -7,12 +7,12 @@
         </svg>
         Back to dashboard
       </a>
-      <h1 class="mt-4 text-3xl font-bold text-text-dark">Create a campaign</h1>
+      <h1 class="mt-4 text-3xl font-bold text-text-dark">Create a celebration</h1>
       <p class="mt-1 text-text-muted">
         @if (canCreatePaidCampaign()) {
-          Pro access is available. This campaign will be created as Pro.
+          Pro access is available. This celebration will be created as Pro.
         } @else {
-          Start with a free campaign. You can upgrade a campaign later if you need more features.
+          Start with a free celebration. You can upgrade a celebration later if you need more features.
         }
       </p>
     </div>
@@ -25,11 +25,11 @@
     >
       <div class="form-columns">
         <section class="form-section">
-          <h2 class="form-section__title">Campaign details</h2>
+          <h2 class="form-section__title">Celebration details</h2>
 
           <div class="field">
             <label for="title" class="field__label">
-              Campaign title
+              Celebration title
               <span class="text-error" aria-hidden="true">*</span>
               <span class="sr-only">(required)</span>
             </label>
@@ -147,7 +147,7 @@
 
         <section class="form-section">
           @if (canCreatePaidCampaign()) {
-            <h2 class="form-section__title">Included with this paid campaign</h2>
+            <h2 class="form-section__title">Included with this paid celebration</h2>
 
             <div class="locked-section locked-section--active">
               <div class="locked-section__header">
@@ -160,26 +160,26 @@
               <ul class="locked-section__features">
                 <li class="locked-feature">
                   <div class="locked-feature__field locked-feature__field--active">
-                    <span class="locked-feature__label">This campaign will be created as Pro</span>
+                    <span class="locked-feature__label">This celebration will be created as Pro</span>
                   </div>
                 </li>
               </ul>
             </div>
           } @else {
-            <h2 class="form-section__title">Included with this free campaign</h2>
+            <h2 class="form-section__title">Included with this free celebration</h2>
 
             <div class="locked-section">
               <div class="locked-section__header">
                 <svg class="w-5 h-5 text-text-muted" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
                 </svg>
-                <span class="text-sm font-semibold text-text-mid">Basic campaign</span>
+                <span class="text-sm font-semibold text-text-mid">Basic celebration</span>
               </div>
 
               <ul class="locked-section__features">
                 <li class="locked-feature">
                   <div class="locked-feature__field">
-                    <span class="locked-feature__label">Shareable campaign link</span>
+                    <span class="locked-feature__label">Shareable celebration link</span>
                   </div>
                 </li>
                 <li class="locked-feature">
