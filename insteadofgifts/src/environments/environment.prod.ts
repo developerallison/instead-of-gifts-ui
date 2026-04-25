@@ -5,6 +5,7 @@ const supabaseProjectUrl = 'https://mcxijpqkpvyjxmooovkt.supabase.co';
 
 export const environment: AppEnvironment = {
   production: true,
+  appUrl: 'https://www.insteadofgifts.com',
   supabase: {
     url: supabaseProjectUrl,
     anonKey: 'sb_publishable_BCvxQBww6Pzkx4BMEjEvCA_GJREOu8B',
