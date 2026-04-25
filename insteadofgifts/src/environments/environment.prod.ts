@@ -1,16 +1,16 @@
 import { AppEnvironment } from './environment.model';
 
 /** Production environment. Replace these values with your production providers/projects. */
-const supabaseProjectUrl = 'https://mmvabtwjneyrptdmtass.supabase.co';
+const supabaseProjectUrl = 'https://mcxijpqkpvyjxmooovkt.supabase.co';
 
 export const environment: AppEnvironment = {
   production: true,
   supabase: {
     url: supabaseProjectUrl,
-    anonKey: 'sb_publishable_pIR-Mu_88Rjd9oDo2QJdOw_x0FJjRR2',
+    anonKey: 'sb_publishable_BCvxQBww6Pzkx4BMEjEvCA_GJREOu8B',
   },
   stripe: {
-    publishableKey: 'pk_test_51TEj2wKPfi0NJ0mnhOHkRLGQLjRJtHjZvngjgTBqBp7FPA4R1lS3TTDxc5CQDNp1UPQCDN64XKwQpCN4HX2L2GYa00KLEtoXPy',
+    publishableKey: 'pk_test_51TLpjTK7vuC5QvGEEg3gQzkA910OMf8znTfz7ANIqHZQihqdzG2LNZ3dTmZaTHrjkqQK6JN10ckuYtCRqADIazwV00IeI951pE', //allison@insteadofgifts.com
   },
   paypal: {
     clientId: 'AU4bpdQYn6kfGwiMOU9CkrUGsKvIkjX1gHnDYmSOcEWaZCS7Qz3oBW3V7Y6DXylS_zToolRSdhm-SNe9',

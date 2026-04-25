@@ -10,7 +10,8 @@ export const environment: AppEnvironment = {
     anonKey: 'sb_publishable_pIR-Mu_88Rjd9oDo2QJdOw_x0FJjRR2',
   },
   stripe: {
-    publishableKey: 'pk_test_51TEj2wKPfi0NJ0mnhOHkRLGQLjRJtHjZvngjgTBqBp7FPA4R1lS3TTDxc5CQDNp1UPQCDN64XKwQpCN4HX2L2GYa00KLEtoXPy', //developer@insteadofgifts.com
+    publishableKey: 'pk_test_51TLpjTK7vuC5QvGEEg3gQzkA910OMf8znTfz7ANIqHZQihqdzG2LNZ3dTmZaTHrjkqQK6JN10ckuYtCRqADIazwV00IeI951pE', //allison@insteadofgifts.com
+    // publishableKey: 'pk_test_51TEj2wKPfi0NJ0mnhOHkRLGQLjRJtHjZvngjgTBqBp7FPA4R1lS3TTDxc5CQDNp1UPQCDN64XKwQpCN4HX2L2GYa00KLEtoXPy', //developer@insteadofgifts.com
   },
   paypal: {
     clientId: 'AYloqzb9C8jsFWuL5B5WR8hXrIWHtImNXIEMziOtF1A--s6ksFBcjfbKVkHXI0IKdD7ET8g4xzuagToH',
