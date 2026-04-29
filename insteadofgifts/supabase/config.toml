@@ -98,3 +98,8 @@ verify_jwt = false
 # from the Stripe Connect onboarding flow. JWT is required to identify the user.
 [functions.stripe-connect-callback]
 verify_jwt = false
+
+# send-celebration-created-email: called after an authenticated user creates a
+# celebration. The function validates the JWT itself and then emails the admin.
+[functions.send-celebration-created-email]
+verify_jwt = false

@@ -14,7 +14,7 @@ export const environment: AppEnvironment = {
     publishableKey: 'pk_test_51TLpjTK7vuC5QvGEEg3gQzkA910OMf8znTfz7ANIqHZQihqdzG2LNZ3dTmZaTHrjkqQK6JN10ckuYtCRqADIazwV00IeI951pE', //allison@insteadofgifts.com
   },
   paypal: {
-    clientId: 'AU4bpdQYn6kfGwiMOU9CkrUGsKvIkjX1gHnDYmSOcEWaZCS7Qz3oBW3V7Y6DXylS_zToolRSdhm-SNe9',
+    clientId: 'AeeAp9_XzggG8bj4TA0GZZhOHBcyJLu1lLXx73mjDDN4-FnaE9pDoYH62Q3RgNxpAow1gpKHBi-7JnBM',
     environment: 'production',
   },
   /** Keep production Edge Functions aligned with the production Supabase project above. */

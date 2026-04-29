@@ -22,31 +22,37 @@
 
   <section class="campaign-list-content">
     <div class="campaign-list-content__inner">
-      @if (loading()) {
+      @if (!hasSearched()) {
+        <div class="campaign-list-state">
+          <p>Search for a celebration to see matching results.</p>
+        </div>
+      }
+
+      @if (hasSearched() && loading()) {
         <div class="campaign-list-state">
           <p>Loading active campaigns...</p>
         </div>
       }
 
-      @if (error()) {
+      @if (hasSearched() && error()) {
         <div class="campaign-list-state campaign-list-state--error" role="alert">
           <p>{{ error() }}</p>
         </div>
       }
 
-      @if (!loading() && !error() && campaigns().length === 0) {
+      @if (hasSearched() && !loading() && !error() && campaigns().length === 0) {
         <div class="campaign-list-state">
           <p>No active campaigns are available right now.</p>
         </div>
       }
 
-      @if (!loading() && !error() && campaigns().length > 0 && filteredCampaigns().length === 0) {
+      @if (hasSearched() && !loading() && !error() && campaigns().length > 0 && filteredCampaigns().length === 0) {
         <div class="campaign-list-state">
           <p>No campaigns match "{{ searchTerm() }}".</p>
         </div>
       }
 
-      @if (!loading() && !error() && filteredCampaigns().length > 0) {
+      @if (hasSearched() && !loading() && !error() && filteredCampaigns().length > 0) {
         <div class="campaign-list-grid">
           @for (campaign of filteredCampaigns(); track campaign.id) {
             <app-campaign-card

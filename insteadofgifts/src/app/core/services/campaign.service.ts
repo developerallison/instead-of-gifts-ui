@@ -5,6 +5,7 @@ import { Campaign, CampaignFundUse, CampaignStatus } from '../models/campaign.mo
 import { appendRandomSuffix, generateSlug } from '../utils/slug.util';
 
 const MAX_SLUG_RETRIES = 5;
+const CELEBRATION_CREATED_NOTIFICATION_FN = 'send-celebration-created-email';
 
 export interface UpdateCampaignInput {
   title: string;
@@ -174,7 +175,26 @@ export class CampaignService {
       created.cover_image_url = cdnUrl;
     }
 
+    await this.notifyCelebrationCreated(created);
+
     return this.toModel(created, 0);
+  }
+
+  private async notifyCelebrationCreated(campaign: CampaignRow): Promise<void> {
+    const { error } = await this.supabase.client.functions.invoke(CELEBRATION_CREATED_NOTIFICATION_FN, {
+      body: {
+        campaignId: campaign.id,
+        campaignTitle: campaign.title,
+        campaignSlug: campaign.slug,
+      },
+    });
+
+    if (error) {
+      console.warn(
+        `[campaign.service] Failed to send celebration-created notification for ${campaign.id}:`,
+        error,
+      );
+    }
   }
 
   async upgradeCampaignWithCredit(id: string): Promise<Campaign> {

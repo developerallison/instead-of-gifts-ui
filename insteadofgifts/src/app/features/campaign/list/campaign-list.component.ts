@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   PLATFORM_ID,
   computed,
   inject,
@@ -21,18 +20,21 @@ import { CampaignCardComponent } from '../../../shared/components/campaign-card/
   styleUrl: './campaign-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CampaignListComponent implements OnInit {
+export class CampaignListComponent {
   private readonly campaignSvc = inject(CampaignService);
   private readonly supabaseSvc = inject(SupabaseService);
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly campaigns = signal<Campaign[]>([]);
   readonly searchTerm = signal('');
-  readonly loading = signal(true);
+  readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly hasSearched = signal(false);
+  readonly hasLoadedCampaigns = signal(false);
   readonly activeCount = computed(() => this.campaigns().length);
+  readonly normalizedSearchTerm = computed(() => this.searchTerm().trim().toLowerCase());
   readonly filteredCampaigns = computed(() => {
-    const query = this.searchTerm().trim().toLowerCase();
+    const query = this.normalizedSearchTerm();
     if (!query) return this.campaigns();
 
     return this.campaigns().filter((campaign) =>
@@ -41,7 +43,12 @@ export class CampaignListComponent implements OnInit {
     );
   });
 
-  async ngOnInit(): Promise<void> {
+  private async loadCampaigns(): Promise<void> {
+    if (this.hasLoadedCampaigns()) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
     try {
       const campaigns = await this.campaignSvc.getActiveCampaigns();
       const totals = await Promise.all(
@@ -54,6 +61,7 @@ export class CampaignListComponent implements OnInit {
           amountCollected: totals[index]?.totalPence ?? 0,
         }))
       );
+      this.hasLoadedCampaigns.set(true);
     } catch (error) {
       console.error(error);
       this.error.set('Failed to load active campaigns.');
@@ -93,8 +101,18 @@ export class CampaignListComponent implements OnInit {
     }
   }
 
-  onSearchInput(event: Event): void {
+  async onSearchInput(event: Event): Promise<void> {
     const target = event.target as HTMLInputElement | null;
-    this.searchTerm.set(target?.value ?? '');
+    const value = target?.value ?? '';
+    this.searchTerm.set(value);
+
+    if (!value.trim()) {
+      this.hasSearched.set(false);
+      this.error.set(null);
+      return;
+    }
+
+    this.hasSearched.set(true);
+    await this.loadCampaigns();
   }
 }

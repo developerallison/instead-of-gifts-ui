@@ -62,3 +62,24 @@ For more information on using the Angular CLI, including detailed command refere
 
 - Architecture: `docs/ARCHITECTURE.md`
 - Project overview: `docs/PROJECT.md`
+
+## Celebration Created Email Notification
+
+When a signed-in user creates a celebration, the app invokes the
+`send-celebration-created-email` Supabase Edge Function so
+`developer@insteadofgifts.com` receives a notification.
+
+Required Supabase secrets for this function:
+
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL` (must be a verified Resend sender)
+- `CELEBRATION_ALERT_TO_EMAIL` (optional, defaults to `developer@insteadofgifts.com`)
+
+Example:
+
+```bash
+supabase secrets set \
+	RESEND_API_KEY=re_xxx \
+	RESEND_FROM_EMAIL="Instead of Gifts <notifications@insteadofgifts.com>" \
+	CELEBRATION_ALERT_TO_EMAIL=developer@insteadofgifts.com
+```
