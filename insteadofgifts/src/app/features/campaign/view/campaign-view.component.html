@@ -117,15 +117,20 @@
             </div>
           } @else {
             @if (isLoggedIn()) {
-              <div class="cover-placeholder">
+              <button
+                type="button"
+                class="locked-pro-trigger cover-placeholder"
+                (click)="navigateToUpgrade()"
+                aria-label="Upgrade this celebration to unlock cover images"
+              >
                 <svg class="w-14 h-14 text-mint" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 @if (!c.isPro) {
-                  <p class="mt-2 text-xs text-text-muted font-medium">Cover images available on Pro</p>
+                  <p class="cover-placeholder__hint">Cover images available on Pro</p>
                 }
-              </div>
+              </button>
             }
           }
 
@@ -243,17 +248,31 @@
                 </div>
               </div>
 
-              <div class="qr-card__qr">
-                <app-qr-code
-                  [url]="campaignUrl()"
-                  [isPro]="c.isPro"
-                  [size]="180"
-                  [filename]="c.slug"
-                />
-                @if (c.isPro) {
+              @if (c.isPro) {
+                <div class="qr-card__qr">
+                  <app-qr-code
+                    [url]="campaignUrl()"
+                    [isPro]="true"
+                    [size]="180"
+                    [filename]="c.slug"
+                  />
                   <p class="qr-label">Scan to contribute</p>
-                }
-              </div>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  class="locked-pro-trigger qr-card__qr qr-card__qr--locked"
+                  (click)="navigateToUpgrade()"
+                  aria-label="Upgrade this celebration to unlock QR codes"
+                >
+                  <app-qr-code
+                    [url]="campaignUrl()"
+                    [isPro]="false"
+                    [size]="180"
+                    [filename]="c.slug"
+                  />
+                </button>
+              }
             </div>
           </div>
           }

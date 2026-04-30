@@ -2,7 +2,10 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID') ?? 'paypal_dummy_client_id';
 const PAYPAL_CLIENT_SECRET = Deno.env.get('PAYPAL_CLIENT_SECRET') ?? 'paypal_dummy_secret';
-const PAYPAL_BASE_URL = (Deno.env.get('PAYPAL_BASE_URL') ?? 'https://api-m.sandbox.paypal.com').replace(/\/$/, '');
+const PAYPAL_BASE_URL_OVERRIDE = Deno.env.get('PAYPAL_BASE_URL')?.replace(/\/$/, '') ?? null;
+const PAYPAL_ENVIRONMENT = Deno.env.get('PAYPAL_ENVIRONMENT')?.trim().toLowerCase() ?? null;
+const PAYPAL_SANDBOX_BASE_URL = 'https://api-m.sandbox.paypal.com';
+const PAYPAL_LIVE_BASE_URL = 'https://api-m.paypal.com';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -55,11 +58,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    const accessToken = await getPayPalAccessToken();
-    const orderResponse = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
+    const paypalAuth = await getPayPalAuth();
+    const orderResponse = await fetch(`${paypalAuth.baseUrl}/v2/checkout/orders`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${paypalAuth.accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -108,22 +111,45 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 });
 
-async function getPayPalAccessToken(): Promise<string> {
+async function getPayPalAuth(): Promise<{ accessToken: string; baseUrl: string }> {
   const auth = btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`);
-  const response = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({ grant_type: 'client_credentials' }),
-  });
+  let lastError: string | null = null;
 
-  const data = await response.json();
-  if (!response.ok || !data.access_token) {
-    throw new Error(formatPayPalError(data, 'Failed to authenticate with PayPal.'));
+  for (const baseUrl of getPayPalBaseUrlCandidates()) {
+    const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({ grant_type: 'client_credentials' }),
+    });
+
+    const data = await response.json();
+    if (response.ok && data.access_token) {
+      return { accessToken: data.access_token as string, baseUrl };
+    }
+
+    lastError = `${baseUrl}: ${formatPayPalError(data, 'Failed to authenticate with PayPal.')}`;
   }
-  return data.access_token as string;
+
+  throw new Error(lastError ?? 'Failed to authenticate with PayPal.');
+}
+
+function getPayPalBaseUrlCandidates(): string[] {
+  if (PAYPAL_BASE_URL_OVERRIDE) {
+    return [PAYPAL_BASE_URL_OVERRIDE];
+  }
+
+  if (PAYPAL_ENVIRONMENT === 'production' || PAYPAL_ENVIRONMENT === 'live') {
+    return [PAYPAL_LIVE_BASE_URL, PAYPAL_SANDBOX_BASE_URL];
+  }
+
+  if (PAYPAL_ENVIRONMENT === 'sandbox') {
+    return [PAYPAL_SANDBOX_BASE_URL, PAYPAL_LIVE_BASE_URL];
+  }
+
+  return [PAYPAL_SANDBOX_BASE_URL, PAYPAL_LIVE_BASE_URL];
 }
 
 function usingPlaceholderCredentials(): boolean {

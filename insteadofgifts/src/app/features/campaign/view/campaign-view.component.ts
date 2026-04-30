@@ -187,6 +187,15 @@ export class CampaignViewComponent implements OnInit {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
+  async navigateToUpgrade(): Promise<void> {
+    const c = this.campaign();
+    if (!c) return;
+
+    await this.router.navigate(['/pro/upgrade/payment'], {
+      queryParams: { campaignId: c.id },
+    });
+  }
+
   fundUseDefaultMessage(fundUse: CampaignFundUse): string {
     return FUND_USE_DEFAULT_MESSAGES[fundUse];
   }
