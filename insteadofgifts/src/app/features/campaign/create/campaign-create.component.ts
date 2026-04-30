@@ -20,6 +20,7 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CampaignFundUse } from '../../../core/models/campaign.model';
 import { CampaignService } from '../../../core/services/campaign.service';
 import { ProService } from '../../../core/services/pro.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { generateSlug } from '../../../core/utils/slug.util';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 
@@ -51,6 +52,7 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly campaignSvc = inject(CampaignService);
   private readonly proSvc = inject(ProService);
+  private readonly toastSvc = inject(ToastService);
 
   readonly slugPreview = signal('');
   readonly submitting = signal(false);
@@ -116,7 +118,7 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
       const { title, description, fundUse, deadline } = this.form.getRawValue();
       const usePaidCredit = this.canCreatePaidCampaign();
 
-      const campaign = await this.campaignSvc.createCampaign({
+      await this.campaignSvc.createCampaign({
         title,
         description: description || undefined,
         fundUse: fundUse ?? null,
@@ -125,7 +127,8 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
       });
 
       await this.proSvc.loadProfile();
-      await this.router.navigate(['/celebrations', campaign.slug, 'edit']);
+      this.toastSvc.success('Celebration created successfully.');
+      await this.router.navigate(['/dashboard']);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       this.submitError.set(message);
