@@ -73,7 +73,7 @@ export class CampaignListComponent {
   async onShare(campaign: Campaign): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const url = `${window.location.origin}/campaigns/${campaign.slug}`;
+    const url = `${window.location.origin}/celebrations/${campaign.slug}`;
     const shareData: ShareData = {
       title: campaign.title,
       text: `Contribute to "${campaign.title}"`,

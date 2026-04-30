@@ -125,7 +125,7 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
       });
 
       await this.proSvc.loadProfile();
-      await this.router.navigate(['/campaigns', campaign.slug, 'edit']);
+      await this.router.navigate(['/celebrations', campaign.slug, 'edit']);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       this.submitError.set(message);

@@ -37,7 +37,7 @@
 
         <!-- Title + slug -->
         <a
-          [routerLink]="['/campaigns', campaign().slug]"
+          [routerLink]="['/celebrations', campaign().slug]"
           class="block group"
           target="_blank"
           rel="noopener noreferrer"
@@ -97,7 +97,7 @@
           <app-button
             variant="ghost"
             size="sm"
-            [routerLink]="['/campaigns', campaign().slug]"
+            [routerLink]="['/celebrations', campaign().slug]"
             target="_blank"
             rel="noopener noreferrer"
             [ariaLabel]="'View celebration: ' + campaign().title"
@@ -203,7 +203,7 @@
     <!-- ── Cover image ──────────────────────────────────────────────────── -->
     @if (showImage()) {
       <a
-        [routerLink]="['/campaigns', campaign().slug]"
+        [routerLink]="['/celebrations', campaign().slug]"
         class="block overflow-hidden rounded-t-[12px]"
         target="_blank"
         rel="noopener noreferrer"
@@ -262,7 +262,7 @@
 
       <!-- Title -->
       <a
-        [routerLink]="['/campaigns', campaign().slug]"
+        [routerLink]="['/celebrations', campaign().slug]"
         class="block group"
         target="_blank"
         rel="noopener noreferrer"

@@ -10,7 +10,7 @@
 
     <div class="site-header__actions">
       @if (user()) {
-        <a routerLink="/campaigns/all" class="site-header__nav-link">Celebrations</a>
+        <a routerLink="/celebrations/all" class="site-header__nav-link">Celebrations</a>
 
         <details #profileDropdown class="site-header__dropdown site-header__dropdown--profile">
           <summary class="site-header__trigger site-header__trigger--profile">
@@ -28,13 +28,13 @@
             </div>
 
             <a routerLink="/dashboard" class="site-header__panel-link" (click)="closeDropdown(profileDropdown)">Dashboard</a>
-            <a routerLink="/campaigns/new" class="site-header__panel-link" (click)="closeDropdown(profileDropdown)">Create Celebration</a>
+            <a routerLink="/celebrations/new" class="site-header__panel-link" (click)="closeDropdown(profileDropdown)">Create Celebration</a>
             <a routerLink="/pro/upgrade" class="site-header__panel-link" (click)="closeDropdown(profileDropdown)">Go Pro</a>
             <button type="button" class="site-header__panel-action" (click)="closeDropdown(profileDropdown); onLogout()">Logout</button>
           </div>
         </details>
       } @else {
-        <a routerLink="/campaigns/all" class="site-header__nav-link">Celebrations</a>
+        <a routerLink="/celebrations/all" class="site-header__nav-link">Celebrations</a>
         <a routerLink="/login" class="site-header__login">Login</a>
       }
     </div>

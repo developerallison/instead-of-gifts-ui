@@ -17,7 +17,7 @@
           <p class="page-header__eyebrow">Celebrations</p>
           <h1 class="page-header__title">Activity</h1>
         </div>
-        <app-button variant="primary" size="md" routerLink="/campaigns/new">
+        <app-button variant="primary" size="md" routerLink="/celebrations/new">
           <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"/>
           </svg>
@@ -99,7 +99,7 @@
           </div>
           <h2 class="empty-state__heading">No celebrations yet</h2>
           <p class="empty-state__body">Create your first celebration to start collecting contributions.</p>
-          <app-button variant="primary" size="lg" routerLink="/campaigns/new">
+          <app-button variant="primary" size="lg" routerLink="/celebrations/new">
             Create your first celebration
           </app-button>
         </div>
@@ -189,7 +189,7 @@
                     </div>
                     <div class="activity-item__meta">
                       <a
-                        [routerLink]="['/campaigns', item.campaignSlug]"
+                        [routerLink]="['/celebrations', item.campaignSlug]"
                         class="activity-item__campaign"
                         [title]="item.campaignTitle"
                         target="_blank"

@@ -141,7 +141,7 @@ export class DashboardComponent implements OnInit {
         campaigns.map((c, i) => ({
           campaign:        c.id === upgradedCampaignId ? { ...c, isPro: true } : c,
           totals:          totalsArr[i],
-          campaignUrl:     origin ? `${origin}/campaigns/${c.slug}` : '',
+          campaignUrl:     origin ? `${origin}/celebrations/${c.slug}` : '',
            copySuccess:     false,
            closing:         false,
            deleting:        false,
@@ -227,7 +227,7 @@ export class DashboardComponent implements OnInit {
   async onCopyLink(campaign: Campaign): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const url = `${window.location.origin}/campaigns/${campaign.slug}`;
+    const url = `${window.location.origin}/celebrations/${campaign.slug}`;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
@@ -257,7 +257,7 @@ export class DashboardComponent implements OnInit {
   async onShare(campaign: Campaign): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const url = `${window.location.origin}/campaigns/${campaign.slug}`;
+    const url = `${window.location.origin}/celebrations/${campaign.slug}`;
     const shareData: ShareData = {
       title: campaign.title,
       text:  `Contribute to "${campaign.title}"`,

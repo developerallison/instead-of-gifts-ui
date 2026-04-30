@@ -18,6 +18,10 @@ export const routes: Routes = [
       },
       {
         path: 'campaigns',
+        redirectTo: 'celebrations',
+      },
+      {
+        path: 'celebrations',
         loadChildren: () =>
           import('./features/campaign/campaign.routes').then(
             (m) => m.CAMPAIGN_ROUTES

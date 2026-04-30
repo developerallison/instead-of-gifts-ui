@@ -71,7 +71,7 @@ export class CampaignViewComponent implements OnInit {
   readonly campaignUrl = computed(() => {
     if (!isPlatformBrowser(this.platformId)) return '';
     const c = this.campaign();
-    return c ? `${window.location.origin}/campaigns/${c.slug}` : '';
+    return c ? `${window.location.origin}/celebrations/${c.slug}` : '';
   });
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────

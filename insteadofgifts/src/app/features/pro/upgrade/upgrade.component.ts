@@ -46,7 +46,7 @@ export class UpgradeComponent {
   ];
 
   async onContinueFree(): Promise<void> {
-    await this.router.navigate(['/campaigns/new']);
+    await this.router.navigate(['/celebrations/new']);
   }
 
   async onUpgrade(): Promise<void> {

@@ -178,7 +178,7 @@ export class ContributeComponent implements OnInit {
     const origin = isPlatformBrowser(this.platformId) ? window.location.origin : '';
     const provider = this.paymentMethod();
     const successBaseUrl =
-      `${origin}/campaigns/${campaign.slug}?contributed=true&provider=${provider}`;
+      `${origin}/celebrations/${campaign.slug}?contributed=true&provider=${provider}`;
     const cancelUrl =
       `${origin}/contribute/${campaign.slug}?payment_cancelled=true&provider=${provider}`;
 
@@ -296,7 +296,7 @@ export class ContributeComponent implements OnInit {
         const { name, message, isAnonymous } = this.form.getRawValue();
         const contributorName = isAnonymous ? 'Anonymous' : name.trim();
         const origin = window.location.origin;
-        const successUrl = `${origin}/campaigns/${campaign.slug}?contributed=true&provider=venmo`;
+        const successUrl = `${origin}/celebrations/${campaign.slug}?contributed=true&provider=venmo`;
         const cancelUrl = `${origin}/contribute/${campaign.slug}?payment_cancelled=true&provider=venmo`;
 
         const response = await this.paypalSvc.createOrder({
@@ -327,7 +327,7 @@ export class ContributeComponent implements OnInit {
         }
 
         await this.supabaseSvc.confirmPayPalContribution(orderId);
-        window.location.href = `${window.location.origin}/campaigns/${campaign.slug}?contributed=true&provider=venmo&order_id=${encodeURIComponent(orderId)}`;
+        window.location.href = `${window.location.origin}/celebrations/${campaign.slug}?contributed=true&provider=venmo&order_id=${encodeURIComponent(orderId)}`;
       },
       onCancel: () => {
         this.wasCancelled.set(true);

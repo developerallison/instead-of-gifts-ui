@@ -6,10 +6,11 @@ const RESEND_FROM_EMAIL = Deno.env.get('RESEND_FROM_EMAIL') ?? '';
 const CELEBRATION_ALERT_TO_EMAIL =
   Deno.env.get('CELEBRATION_ALERT_TO_EMAIL') ?? 'developer@insteadofgifts.com';
 
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-);
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+const FRONTEND_URL = Deno.env.get('FRONTEND_URL');
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CORS_HEADERS: HeadersInit = {
   'Access-Control-Allow-Origin': '*',
@@ -36,18 +37,28 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return respond(500, { error: 'Email service is not configured.' });
   }
 
+  if (!FRONTEND_URL) {
+    return respond(500, { error: 'Frontend URL not configured' });
+  }
+
   const authHeader = req.headers.get('authorization') ?? '';
   if (!authHeader.startsWith('Bearer ')) {
     return respond(401, { error: 'Missing Authorization header' });
   }
 
   const jwt = authHeader.slice(7);
-  const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser(jwt);
+
   if (authError || !user?.email) {
     return respond(401, { error: 'Invalid or expired token' });
   }
 
   let body: CelebrationCreatedRequest;
+
   try {
     body = await req.json();
   } catch {
@@ -62,41 +73,66 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return respond(400, { error: 'campaignId and campaignTitle are required' });
   }
 
+  // Validate slug format
+  if (campaignSlug && !/^[a-z0-9-]+$/i.test(campaignSlug)) {
+    return respond(400, { error: 'Invalid campaignSlug format' });
+  }
+
   const creatorName = getDisplayName(user.user_metadata, user.email);
+
   const celebrationUrl = campaignSlug
-    ? `${Deno.env.get('FRONTEND_URL') ?? 'http://localhost:4200'}/campaign/${encodeURIComponent(campaignSlug)}`
+    ? `${FRONTEND_URL}/celebrations/${encodeURIComponent(campaignSlug)}`
     : null;
 
-  const resendResponse = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: RESEND_FROM_EMAIL,
-      to: [CELEBRATION_ALERT_TO_EMAIL],
-      subject: `New celebration created by ${creatorName}`,
-      text: buildTextBody({
-        creatorName,
-        creatorEmail: user.email,
-        campaignId,
-        campaignTitle,
-        celebrationUrl,
+  // Timeout handling for Resend
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+
+  let resendResponse: Response;
+
+  try {
+    resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: RESEND_FROM_EMAIL,
+        to: [CELEBRATION_ALERT_TO_EMAIL],
+        subject: `New celebration created by ${creatorName}`,
+        text: buildTextBody({
+          creatorName,
+          creatorEmail: user.email,
+          campaignId,
+          campaignTitle,
+          celebrationUrl,
+        }),
+        html: buildHtmlBody({
+          creatorName,
+          creatorEmail: user.email,
+          campaignId,
+          campaignTitle,
+          celebrationUrl,
+        }),
       }),
-      html: buildHtmlBody({
-        creatorName,
-        creatorEmail: user.email,
-        campaignId,
-        campaignTitle,
-        celebrationUrl,
-      }),
-    }),
-  });
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timeout);
+    console.error('[send-celebration-created-email] Fetch error:', err);
+    return respond(502, { error: 'Email service timeout or network error' });
+  }
+
+  clearTimeout(timeout);
 
   if (!resendResponse.ok) {
     const responseText = await resendResponse.text();
-    console.error('[send-celebration-created-email] Resend error:', responseText);
+    console.error('[send-celebration-created-email]', {
+      error: responseText,
+      campaignId,
+      user: user.email,
+    });
     return respond(502, { error: 'Failed to send notification email.' });
   }
 
@@ -107,10 +143,12 @@ function getDisplayName(
   metadata: Record<string, unknown> | undefined,
   email: string,
 ): string {
-  const candidate = metadata?.['full_name'] ?? metadata?.['name'] ?? metadata?.['first_name'];
-  return typeof candidate === 'string' && candidate.trim().length
-    ? candidate.trim()
-    : email;
+  const candidate =
+    metadata?.['full_name'] ??
+    metadata?.['name'] ??
+    metadata?.['first_name'];
+
+  return candidate?.toString().trim() || email;
 }
 
 function buildTextBody(input: {
@@ -144,11 +182,13 @@ function buildHtmlBody(input: {
   celebrationUrl: string | null;
 }): string {
   const celebrationUrlMarkup = input.celebrationUrl
-    ? `<p><strong>Celebration URL:</strong> <a href="${escapeHtml(input.celebrationUrl)}">${escapeHtml(input.celebrationUrl)}</a></p>`
+    ? `<p><strong>Celebration URL:</strong> <a href="${escapeHtml(
+        input.celebrationUrl,
+      )}">${escapeHtml(input.celebrationUrl)}</a></p>`
     : '';
 
   return [
-    '<h2>New celebration created</h2>',
+    '<h2>🎉 New Celebration Created</h2>',
     '<p>A signed-in user has created a new celebration.</p>',
     `<p><strong>Name:</strong> ${escapeHtml(input.creatorName)}</p>`,
     `<p><strong>Email:</strong> ${escapeHtml(input.creatorEmail)}</p>`,

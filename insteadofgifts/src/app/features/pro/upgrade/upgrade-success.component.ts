@@ -204,7 +204,7 @@ export class UpgradeSuccessComponent implements OnInit {
       return;
     }
 
-    const editLink = ['/campaigns', campaign.slug, 'edit'];
+    const editLink = ['/celebrations', campaign.slug, 'edit'];
     this.primaryActionLabel.set('Back to Edit Page');
     this.primaryActionLink.set(editLink);
     await this.router.navigate(editLink, { replaceUrl: true });

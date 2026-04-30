@@ -90,7 +90,7 @@
         </div>
         <h2 class="empty-state__heading">Start your first celebration</h2>
         <p class="empty-state__body">Create your first celebration and start collecting contributions.</p>
-        <app-button variant="primary" size="lg" [routerLink]="['/campaigns', 'new']">
+        <app-button variant="primary" size="lg" [routerLink]="['/celebrations', 'new']">
           Create your first celebration
         </app-button>
       </div>
@@ -103,7 +103,7 @@
           <h1 class="dashboard-intro__title">Welcome back, {{ greetingName() }}</h1>
         </div>
         <div class="dashboard-intro__actions">
-          <app-button variant="primary" size="md" [routerLink]="['/campaigns', 'new']">
+          <app-button variant="primary" size="md" [routerLink]="['/celebrations', 'new']">
             <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"/>
             </svg>
@@ -142,7 +142,7 @@
                   <button
                     class="milestone-card__top-icon"
                     type="button"
-                    [routerLink]="['/campaigns', row.campaign.slug, 'edit']"
+                    [routerLink]="['/celebrations', row.campaign.slug, 'edit']"
                     aria-label="Edit celebration"
                   >
                     <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -168,7 +168,7 @@
                 <div class="milestone-card__content-main">
                   <h3 class="milestone-card__title-wrap">
                     <a
-                      [routerLink]="['/campaigns', row.campaign.slug]"
+                      [routerLink]="['/celebrations', row.campaign.slug]"
                       class="milestone-card__title"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -234,7 +234,7 @@
       <section class="activity">
         <div class="section-header">
           <h2 class="section-header__title">Recent Activity</h2>
-          <a class="activity__all" [routerLink]="['/campaigns']">See all activity</a>
+          <a class="activity__all" [routerLink]="['/celebrations']">See all activity</a>
         </div>
 
         @if (recentActivity().length === 0) {
