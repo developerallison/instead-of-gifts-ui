@@ -51,10 +51,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
   margin-top: -2rem;
-
-  @media (max-width: 720px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .plan-card {
@@ -226,4 +222,93 @@
   font-size: 0.9375rem;
   color: var(--color-text-muted, #6A8272);
   line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .upgrade-page__inner {
+    padding: 0 0.75rem 3rem;
+  }
+
+  .pricing-grid {
+    gap: 0.75rem;
+    margin-top: -1.5rem;
+  }
+
+  .plan-card {
+    border-radius: 16px;
+  }
+
+  .plan-card__badge {
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 0.625rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .plan-card__header {
+    padding: 1.125rem 1rem 1rem;
+  }
+
+  .plan-card__name {
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .plan-card__amount {
+    font-size: 1.875rem;
+  }
+
+  .plan-card__period,
+  .plan-card__tagline,
+  .campaign-picker__status {
+    font-size: 0.8125rem;
+  }
+
+  .plan-features {
+    padding: 1rem;
+    gap: 0.625rem;
+  }
+
+  .plan-feature {
+    align-items: flex-start;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .plan-feature__icon {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.125rem;
+  }
+
+  .plan-card__footer {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .upgrade-hero {
+    padding: 2.75rem 0.75rem 2.5rem;
+  }
+
+  .pricing-grid {
+    gap: 0.625rem;
+  }
+
+  .plan-card__header {
+    padding: 1rem 0.875rem 0.875rem;
+  }
+
+  .plan-card__amount {
+    font-size: 1.7rem;
+  }
+
+  .plan-features,
+  .plan-card__footer {
+    padding: 0.875rem;
+  }
+
+  .plan-feature {
+    font-size: 0.8125rem;
+  }
 }
