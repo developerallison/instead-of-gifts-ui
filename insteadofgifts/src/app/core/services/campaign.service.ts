@@ -59,7 +59,7 @@ export class CampaignService {
 
     if (error) {
       if (error.code === 'PGRST116') return null;
-      this.toastSvc.error('Failed to load the campaign.');
+      this.toastSvc.error('Failed to load the celebration.');
       throw error;
     }
     return this.toModel(data as CampaignRow, 0);
@@ -74,7 +74,7 @@ export class CampaignService {
 
     if (error) {
       if (error.code === 'PGRST116') return null;
-      this.toastSvc.error('Failed to load the campaign.');
+      this.toastSvc.error('Failed to load the celebration.');
       throw error;
     }
     return this.toModel(data as CampaignRow, 0);
@@ -90,7 +90,7 @@ export class CampaignService {
       .maybeSingle();
 
     if (error) {
-      this.toastSvc.error('Failed to validate campaign URL.');
+      this.toastSvc.error('Failed to validate celebration URL.');
       throw error;
     }
     return data === null;
@@ -112,7 +112,7 @@ export class CampaignService {
 
   async createCampaign(input: CreateCampaignInput): Promise<Campaign> {
     const { data: { user } } = await this.supabase.client.auth.getUser();
-    if (!user) throw new Error('Must be authenticated to create a campaign.');
+    if (!user) throw new Error('Must be authenticated to create a celebration.');
 
     const slug = await this.ensureUniqueSlug(input.title);
 
@@ -156,7 +156,7 @@ export class CampaignService {
 
     if (error) {
       const err = error as { message?: string };
-      this.toastSvc.error(err.message || 'Failed to create campaign.');
+      this.toastSvc.error(err.message || 'Failed to create celebration.');
       throw error;
     }
 
@@ -169,7 +169,7 @@ export class CampaignService {
         .update({ cover_image_url: cdnUrl })
         .eq('id', created.id);
       if (updateErr) {
-        this.toastSvc.warning('Campaign created, but the cover image could not be saved.');
+        this.toastSvc.warning('Celebration created, but the cover image could not be saved.');
         throw updateErr;
       }
       created.cover_image_url = cdnUrl;
@@ -203,7 +203,7 @@ export class CampaignService {
       .single();
 
     if (error) {
-      this.toastSvc.error(error.message || 'Failed to upgrade campaign.');
+      this.toastSvc.error(error.message || 'Failed to upgrade celebration.');
       throw error;
     }
 
@@ -261,7 +261,7 @@ export class CampaignService {
       .eq('id', id);
 
     if (error) {
-      this.toastSvc.error('Failed to close the campaign — please try again.');
+      this.toastSvc.error('Failed to close the celebration — please try again.');
       throw error;
     }
   }
@@ -273,7 +273,7 @@ export class CampaignService {
       .eq('id', id);
 
     if (error) {
-      this.toastSvc.error('Failed to delete the campaign — please try again.');
+      this.toastSvc.error('Failed to delete the celebration — please try again.');
       throw error;
     }
   }
@@ -289,7 +289,7 @@ export class CampaignService {
       .order('created_at', { ascending: false });
 
     if (error) {
-      this.toastSvc.error('Failed to load your campaigns — please refresh.');
+      this.toastSvc.error('Failed to load your celebrations — please refresh.');
       throw error;
     }
     return (data as CampaignRow[]).map((row) => this.toModel(row, 0));
@@ -303,7 +303,7 @@ export class CampaignService {
       .order('created_at', { ascending: false });
 
     if (error) {
-      this.toastSvc.error('Failed to load active campaigns.');
+      this.toastSvc.error('Failed to load active celebrations.');
       throw error;
     }
 

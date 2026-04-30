@@ -96,7 +96,7 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
     try {
       const c = await this.campaignSvc.getCampaignBySlug(slug);
       if (!c) {
-        this.loadError.set('Campaign not found.');
+        this.loadError.set('Celebration not found.');
         return;
       }
 
@@ -109,7 +109,7 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
         this.form.controls.deadline.disable({ emitEvent: false });
       }
     } catch {
-      this.loadError.set('Failed to load campaign.');
+      this.loadError.set('Failed to load celebration.');
     } finally {
       this.loading.set(false);
     }
@@ -162,7 +162,7 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
         customMessage:     c.isPro ? (customMessage || undefined) : undefined,
       });
 
-      this.toastSvc.success('Campaign updated successfully.');
+      this.toastSvc.success('Celebration updated successfully.');
       await this.router.navigate(['/dashboard']);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';

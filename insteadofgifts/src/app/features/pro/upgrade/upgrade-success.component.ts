@@ -164,7 +164,7 @@ export class UpgradeSuccessComponent implements OnInit {
       await this.redirectToCampaignEditIfPossible(campaignId);
       this.clearPendingUpgradeCampaign();
     } catch (err: unknown) {
-      this.error.set(err instanceof Error ? err.message : 'Failed to confirm the campaign payment.');
+      this.error.set(err instanceof Error ? err.message : 'Failed to confirm the celebration payment.');
     } finally {
       this.loading.set(false);
     }
@@ -172,7 +172,7 @@ export class UpgradeSuccessComponent implements OnInit {
 
   private updateConfirmationMessage(campaignCredits: number, upgradedCampaignId: string | null): void {
     if (upgradedCampaignId) {
-      this.confirmationMessage.set('Your campaign is now Pro. No extra steps are needed.');
+      this.confirmationMessage.set('Your celebration is now Pro. No extra steps are needed.');
       return;
     }
 

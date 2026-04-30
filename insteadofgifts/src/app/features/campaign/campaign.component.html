@@ -14,14 +14,14 @@
 
       <div class="page-header__title-row">
         <div>
-          <p class="page-header__eyebrow">Campaigns</p>
+          <p class="page-header__eyebrow">Celebrations</p>
           <h1 class="page-header__title">Activity</h1>
         </div>
         <app-button variant="primary" size="md" routerLink="/campaigns/new">
           <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"/>
           </svg>
-          New Campaign
+          New Celebration
         </app-button>
       </div>
     </div>
@@ -85,11 +85,11 @@
         </div>
         <div class="stat-card">
           <span class="stat-card__value">{{ stats().activeCampaigns }}</span>
-          <span class="stat-card__label">Active campaigns</span>
+          <span class="stat-card__label">Active celebrations</span>
         </div>
       </div>
 
-      <!-- ── No campaigns yet ─────────────────────────────────── -->
+      <!-- ── No celebrations yet ─────────────────────────────────── -->
       @if (campaigns().length === 0) {
         <div class="empty-state">
           <div class="empty-state__icon" aria-hidden="true">
@@ -97,19 +97,19 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
             </svg>
           </div>
-          <h2 class="empty-state__heading">No campaigns yet</h2>
-          <p class="empty-state__body">Create your first campaign to start collecting contributions.</p>
+          <h2 class="empty-state__heading">No celebrations yet</h2>
+          <p class="empty-state__body">Create your first celebration to start collecting contributions.</p>
           <app-button variant="primary" size="lg" routerLink="/campaigns/new">
-            Create your first campaign
+            Create your first celebration
           </app-button>
         </div>
       }
 
-      <!-- ── Campaigns exist ──────────────────────────────────── -->
+      <!-- ── Celebrations exist ──────────────────────────────────── -->
       @if (campaigns().length > 0) {
 
         <!-- Filter chips -->
-        <div class="filter-bar" role="tablist" aria-label="Filter by campaign">
+        <div class="filter-bar" role="tablist" aria-label="Filter by celebration">
           <button
             role="tab"
             class="chip"
@@ -144,7 +144,7 @@
             <svg class="w-10 h-10 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
             </svg>
-            <p class="empty-state__body mt-3">No contributions yet for this campaign.<br>Share the link to get started.</p>
+            <p class="empty-state__body mt-3">No contributions yet for this celebration.<br>Share the link to get started.</p>
           </div>
         }
 

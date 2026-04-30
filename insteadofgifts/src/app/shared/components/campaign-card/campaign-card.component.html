@@ -100,7 +100,7 @@
             [routerLink]="['/campaigns', campaign().slug]"
             target="_blank"
             rel="noopener noreferrer"
-            [ariaLabel]="'View campaign: ' + campaign().title"
+            [ariaLabel]="'View celebration: ' + campaign().title"
           >
             <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
@@ -113,7 +113,7 @@
             variant="secondary"
             size="sm"
             type="button"
-            [ariaLabel]="copySuccess() ? 'Link copied!' : 'Copy campaign link'"
+            [ariaLabel]="copySuccess() ? 'Link copied!' : 'Copy celebration link'"
             (clicked)="onCopyLink($event)"
           >
             @if (copySuccess()) {
@@ -134,7 +134,7 @@
             variant="ghost"
             size="sm"
             type="button"
-            [ariaLabel]="'Share campaign: ' + campaign().title"
+            [ariaLabel]="'Share celebration: ' + campaign().title"
             (clicked)="onShare($event)"
           >
             <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -150,13 +150,13 @@
               size="sm"
               type="button"
               [loading]="closing()"
-              [ariaLabel]="closing() ? 'Closing campaign…' : 'Close campaign: ' + campaign().title"
+              [ariaLabel]="closing() ? 'Closing celebration…' : 'Close celebration: ' + campaign().title"
               (clicked)="onCloseCampaign($event)"
             >
               <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/>
               </svg>
-              Close campaign
+              Close celebration
             </app-button>
           }
         </div>
@@ -179,7 +179,7 @@
           <a
             class="campaign-card__qr-teaser"
             [routerLink]="['/pro', 'upgrade']"
-            aria-label="Pay to unlock QR codes before creating your campaign"
+            aria-label="Pay to unlock QR codes before creating your celebration"
           >
             <svg class="campaign-card__qr-teaser-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
@@ -309,7 +309,7 @@
           variant="secondary"
           size="sm"
           (clicked)="onShare($event)"
-          aria-label="Share campaign"
+          aria-label="Share celebration"
         >
           <svg class="w-3.5 h-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

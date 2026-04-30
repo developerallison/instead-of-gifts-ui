@@ -119,16 +119,16 @@ export class ContributeComponent implements OnInit {
     try {
       const campaign = await this.campaignSvc.getCampaignBySlug(slug);
       if (!campaign) {
-        this.loadError.set('Campaign not found.');
+        this.loadError.set('Celebration not found.');
         return;
       }
       if (campaign.status === 'closed') {
-        this.loadError.set('This campaign has ended.');
+        this.loadError.set('This celebration has ended.');
         return;
       }
       this.campaign.set(campaign);
     } catch {
-      this.loadError.set('Failed to load campaign. Please try again.');
+      this.loadError.set('Failed to load celebration. Please try again.');
     } finally {
       this.loading.set(false);
     }
@@ -290,7 +290,7 @@ export class ContributeComponent implements OnInit {
 
         const campaign = this.campaign();
         if (!campaign) {
-          throw new Error('Campaign not found.');
+          throw new Error('Celebration not found.');
         }
 
         const { name, message, isAnonymous } = this.form.getRawValue();
@@ -323,7 +323,7 @@ export class ContributeComponent implements OnInit {
 
         const campaign = this.campaign();
         if (!campaign) {
-          throw new Error('Campaign not found.');
+          throw new Error('Celebration not found.');
         }
 
         await this.supabaseSvc.confirmPayPalContribution(orderId);

@@ -11,6 +11,7 @@ import { isPlatformBrowser, DatePipe, NgOptimizedImage } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { CampaignService } from '../../../core/services/campaign.service';
+import { AuthService } from '../../../core/services/auth.service';
 import {
   SupabaseService,
   CampaignTotals,
@@ -40,6 +41,7 @@ export class CampaignViewComponent implements OnInit {
   private readonly route        = inject(ActivatedRoute);
   private readonly router       = inject(Router);
   private readonly campaignSvc  = inject(CampaignService);
+  private readonly authSvc      = inject(AuthService);
   private readonly supabaseSvc  = inject(SupabaseService);
   private readonly platformId   = inject(PLATFORM_ID);
 
@@ -51,6 +53,7 @@ export class CampaignViewComponent implements OnInit {
   readonly error          = signal<string | null>(null);
   readonly copySuccess    = signal(false);
   readonly showThankYou   = signal(false);
+  readonly isLoggedIn     = computed(() => this.authSvc.user() !== null);
   private sortContributionsDesc(items: ContributionDisplay[]): ContributionDisplay[] {
     return [...items].sort(
       (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)
@@ -95,7 +98,7 @@ export class CampaignViewComponent implements OnInit {
 
     try {
       const c = await this.campaignSvc.getCampaignBySlug(slug);
-      if (!c) { this.error.set('Campaign not found.'); return; }
+      if (!c) { this.error.set('Celebration not found.'); return; }
 
       // Parallel fetch of totals and recent contributions
       const [initial, contribs] = await Promise.all([
@@ -149,7 +152,7 @@ export class CampaignViewComponent implements OnInit {
         }
       }
     } catch (e) {
-      this.error.set('Failed to load campaign.');
+      this.error.set('Failed to load celebration.');
       console.error(e);
     } finally {
       this.loading.set(false);

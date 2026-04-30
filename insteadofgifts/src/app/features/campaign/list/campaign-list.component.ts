@@ -64,7 +64,7 @@ export class CampaignListComponent {
       this.hasLoadedCampaigns.set(true);
     } catch (error) {
       console.error(error);
-      this.error.set('Failed to load active campaigns.');
+      this.error.set('Failed to load active celebrations.');
     } finally {
       this.loading.set(false);
     }

@@ -7,12 +7,13 @@
         </svg>
         Back to dashboard
       </a>
-      <h1 class="mt-4 text-3xl font-bold text-text-dark">Create a celebration</h1>
+      <h1 class="mt-4 text-3xl font-bold text-text-dark">Create celebration</h1>
       <p class="mt-1 text-text-muted">
-        @if (canCreatePaidCampaign()) {
-          Pro access is available. This celebration will be created as Pro.
+        @if (slugPreview()) {
+          <span>Your link: </span>
+          <span class="font-medium text-forest">insteadofgifts.com/{{ slugPreview() }}</span>
         } @else {
-          Start with a free celebration. You can upgrade a celebration later if you need more features.
+          Add a title to preview your celebration link.
         }
       </p>
     </div>
@@ -45,12 +46,6 @@
               aria-describedby="title-errors"
               autocomplete="off"
             />
-            @if (slugPreview()) {
-              <p class="field__hint">
-                <span class="text-text-muted">Your link: </span>
-                <span class="font-medium text-forest">insteadofgifts.com/{{ slugPreview() }}</span>
-              </p>
-            }
             <div id="title-errors" aria-live="polite">
               @if (hasError('title', 'required')) {
                 <p class="field__error" role="alert">Title is required.</p>
@@ -74,7 +69,7 @@
               formControlName="description"
               rows="4"
               maxlength="500"
-              placeholder="Tell guests what this campaign is for..."
+              placeholder="Tell guests what this celebration is for..."
               class="field__input field__input--textarea"
               [class.field__input--error]="hasError('description', 'maxlength')"
               [attr.aria-invalid]="hasError('description', 'maxlength') || null"
@@ -146,15 +141,25 @@
         </section>
 
         <section class="form-section">
-          @if (canCreatePaidCampaign()) {
-            <h2 class="form-section__title">Included with this paid celebration</h2>
+          <div class="flex items-center gap-2 mb-5">
+            <h2 class="form-section__title mb-0">Celebration Pro</h2>
+            @if (canCreatePaidCampaign()) {
+              <span class="badge-pro">
+                <svg class="w-3 h-3 mr-1" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 1l2.163 4.279L15 6.09l-3.5 3.326.826 4.693L8 11.75l-4.326 2.359.826-4.693L1 6.09l4.837-.811L8 1z"/>
+                </svg>
+                Active
+              </span>
+            }
+          </div>
 
+          @if (canCreatePaidCampaign()) {
             <div class="locked-section locked-section--active">
               <div class="locked-section__header">
                 <svg class="w-5 h-5 text-pro" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
                 </svg>
-                <span class="text-sm font-semibold text-text-mid">Pro ready to use</span>
+                <span class="text-sm font-semibold text-text-mid">One-time upgrade ready</span>
               </div>
 
               <ul class="locked-section__features">
@@ -166,33 +171,51 @@
               </ul>
             </div>
           } @else {
-            <h2 class="form-section__title">Included with this free celebration</h2>
-
             <div class="locked-section">
               <div class="locked-section__header">
-                <svg class="w-5 h-5 text-text-muted" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
+                <svg class="w-5 h-5 text-pro" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
                 </svg>
-                <span class="text-sm font-semibold text-text-mid">Basic celebration</span>
+                <span class="text-sm font-semibold text-text-mid">One-time upgrade</span>
               </div>
 
               <ul class="locked-section__features">
                 <li class="locked-feature">
                   <div class="locked-feature__field">
-                    <span class="locked-feature__label">Shareable celebration link</span>
+                    <span class="locked-feature__label">Custom message</span>
+                    <div class="locked-feature__placeholder locked-feature__placeholder--tall"></div>
                   </div>
                 </li>
                 <li class="locked-feature">
                   <div class="locked-feature__field">
-                    <span class="locked-feature__label">Contribution tracking</span>
+                    <span class="locked-feature__label">Cover image</span>
+                    <div class="locked-feature__placeholder locked-feature__placeholder--cover"></div>
                   </div>
                 </li>
                 <li class="locked-feature">
-                  <div class="locked-feature__field locked-feature__field--locked">
-                    <span class="locked-feature__label">No Pro-only upgrades included</span>
+                  <div class="locked-feature__field">
+                    <span class="locked-feature__label">QR code sharing</span>
+                    <div class="locked-feature__placeholder locked-feature__placeholder--qr"></div>
                   </div>
                 </li>
               </ul>
+
+              <div class="locked-section__cta">
+                <p class="text-sm text-text-muted mb-3">
+                  Unlock custom messages, cover images, and QR downloads for this celebration with a one-time $9.99 payment.
+                </p>
+                <app-button
+                  variant="pro"
+                  size="md"
+                  type="button"
+                  [routerLink]="['/pro', 'upgrade']"
+                >
+                  <svg class="w-4 h-4 mr-1" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <path d="M8 1l2.163 4.279L15 6.09l-3.5 3.326.826 4.693L8 11.75l-4.326 2.359.826-4.693L1 6.09l4.837-.811L8 1z"/>
+                  </svg>
+                  Upgrade this celebration
+                </app-button>
+              </div>
             </div>
           }
         </section>

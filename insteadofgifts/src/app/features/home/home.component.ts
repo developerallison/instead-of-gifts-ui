@@ -72,7 +72,7 @@ export class HomeComponent {
     {
       icon:  'lucidePencilLine',
       step:  '01',
-      title: 'Create a campaign',
+      title: 'Create a celebration',
       body:  'Set a goal, write a personal message, and choose a deadline. Ready in under two minutes.',
     },
     {
@@ -109,7 +109,7 @@ export class HomeComponent {
   readonly year = new Date().getFullYear();
 
   readonly stats = [
-    { value: '500+',    label: 'Campaigns created'       },
+    { value: '500+',    label: 'Celebrations created'    },
     { value: '$120k+',  label: 'Contributions collected' },
     { value: '1,000+',  label: 'Happy contributors'      },
   ];

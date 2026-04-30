@@ -58,7 +58,7 @@
           <svg class="upgrade-banner__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.83-4.401z" clip-rule="evenodd"/>
           </svg>
-          <span><strong>Unlock campaign access</strong> before creating your next celebration.</span>
+          <span><strong>Unlock celebration access</strong> before creating your next celebration.</span>
         </div>
         <a class="upgrade-banner__cta" [routerLink]="['/pro', 'upgrade']">Pay $9.99</a>
       </div>
@@ -88,10 +88,10 @@
               d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/>
           </svg>
         </div>
-        <h2 class="empty-state__heading">Start your first campaign</h2>
+        <h2 class="empty-state__heading">Start your first celebration</h2>
         <p class="empty-state__body">Create your first celebration and start collecting contributions.</p>
         <app-button variant="primary" size="lg" [routerLink]="['/campaigns', 'new']">
-          Create your first campaign
+          Create your first celebration
         </app-button>
       </div>
     }
@@ -115,7 +115,7 @@
       <section class="milestones">
         <div class="section-header">
           <h2 class="section-header__title">Milestones</h2>
-          <span class="section-header__count">{{ rows().length }} {{ rows().length === 1 ? 'campaign' : 'campaigns' }}</span>
+          <span class="section-header__count">{{ rows().length }} {{ rows().length === 1 ? 'celebration' : 'celebrations' }}</span>
         </div>
 
         <ul class="milestone-grid" role="list">
@@ -143,7 +143,7 @@
                     class="milestone-card__top-icon"
                     type="button"
                     [routerLink]="['/campaigns', row.campaign.slug, 'edit']"
-                    aria-label="Edit campaign"
+                    aria-label="Edit celebration"
                   >
                     <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path d="M2 14.5V18h3.5l9.243-9.243-3.5-3.5L2 14.5z"/>
@@ -155,7 +155,7 @@
                     type="button"
                     [disabled]="row.deleting"
                     (click)="onDeleteCampaign(row.campaign)"
-                    aria-label="Delete campaign"
+                    aria-label="Delete celebration"
                   >
                     <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fill-rule="evenodd" d="M7 4a1 1 0 011-1h4a1 1 0 011 1v1h3a1 1 0 110 2h-1v9a2 2 0 01-2 2H7a2 2 0 01-2-2V7H4a1 1 0 010-2h3V4zm2 3a1 1 0 112 0v8a1 1 0 11-2 0V7z" clip-rule="evenodd"/>
@@ -238,7 +238,7 @@
         </div>
 
         @if (recentActivity().length === 0) {
-          <p class="activity__empty">No contributions yet. Share your campaign links to get started.</p>
+          <p class="activity__empty">No contributions yet. Share your celebration links to get started.</p>
         } @else {
           <ul class="activity-list" role="list">
             @for (item of recentActivity(); track item.id) {

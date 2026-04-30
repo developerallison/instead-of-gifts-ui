@@ -116,7 +116,7 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
       const { title, description, fundUse, deadline } = this.form.getRawValue();
       const usePaidCredit = this.canCreatePaidCampaign();
 
-      await this.campaignSvc.createCampaign({
+      const campaign = await this.campaignSvc.createCampaign({
         title,
         description: description || undefined,
         fundUse: fundUse ?? null,
@@ -125,7 +125,7 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
       });
 
       await this.proSvc.loadProfile();
-      await this.router.navigate(['/dashboard']);
+      await this.router.navigate(['/campaigns', campaign.slug, 'edit']);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       this.submitError.set(message);
@@ -143,6 +143,6 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
   }
 
   get submitButtonLabel(): string {
-    return this.canCreatePaidCampaign() ? 'Create paid campaign' : 'Create free campaign';
+    return this.canCreatePaidCampaign() ? 'Create paid celebration' : 'Create free celebration';
   }
 }

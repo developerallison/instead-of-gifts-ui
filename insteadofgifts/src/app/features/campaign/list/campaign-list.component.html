@@ -30,7 +30,7 @@
 
       @if (hasSearched() && loading()) {
         <div class="campaign-list-state">
-          <p>Loading active campaigns...</p>
+          <p>Loading active celebrations...</p>
         </div>
       }
 
@@ -42,13 +42,13 @@
 
       @if (hasSearched() && !loading() && !error() && campaigns().length === 0) {
         <div class="campaign-list-state">
-          <p>No active campaigns are available right now.</p>
+          <p>No active celebrations are available right now.</p>
         </div>
       }
 
       @if (hasSearched() && !loading() && !error() && campaigns().length > 0 && filteredCampaigns().length === 0) {
         <div class="campaign-list-state">
-          <p>No campaigns match "{{ searchTerm() }}".</p>
+          <p>No celebrations match "{{ searchTerm() }}".</p>
         </div>
       }
 

@@ -31,16 +31,16 @@ const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
           Back
         </a>
 
-        <p class="payment-card__eyebrow">Campaign Access</p>
+        <p class="payment-card__eyebrow">Celebration Access</p>
         <h1 class="payment-card__heading">Choose a payment method</h1>
         <p class="payment-card__sub">
-          This is a one-time $9.99 payment to unlock Pro for one campaign.
+          This is a one-time $9.99 payment to unlock Pro for one celebration.
         </p>
 
         <div class="order-summary" aria-label="Order summary">
           <div class="order-summary__row">
             <span class="order-summary__label">Item</span>
-            <span class="order-summary__value">Campaign access</span>
+            <span class="order-summary__value">Celebration access</span>
           </div>
           <div class="order-summary__row">
             <span class="order-summary__label">Type</span>
@@ -48,7 +48,7 @@ const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
           </div>
           <div class="order-summary__row">
             <span class="order-summary__label">Access</span>
-            <span class="order-summary__value">One Pro campaign</span>
+            <span class="order-summary__value">One Pro celebration</span>
           </div>
           <div class="order-summary__row order-summary__row--total">
             <span class="order-summary__label">Total</span>

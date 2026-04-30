@@ -184,7 +184,7 @@ export class DashboardComponent implements OnInit {
         this.baseHost.set(window.location.host.replace(/^www\./, ''));
       }
     } catch (e) {
-      this.error.set('Failed to load your campaigns.');
+      this.error.set('Failed to load your celebrations.');
       console.error(e);
     } finally {
       this.loading.set(false);
@@ -334,7 +334,7 @@ export class DashboardComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
 
     const confirmed = window.confirm(
-      `Delete "${campaign.title}" permanently? This cannot be undone.`
+      `Delete celebration "${campaign.title}" permanently? This cannot be undone.`
     );
     if (!confirmed) return;
 
