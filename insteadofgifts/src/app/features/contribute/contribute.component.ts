@@ -26,6 +26,12 @@ import { StripeService } from '../../core/services/stripe.service';
 import { PayPalService } from '../../core/services/paypal.service';
 import { PayPalSdkService, PayPalNamespace } from '../../core/services/paypal-sdk.service';
 import { Campaign } from '../../core/models/campaign.model';
+import { environment } from '../../../environments/environment';
+import {
+  collectVenmoDiagnostics,
+  getVenmoSupportMessage,
+  VenmoDiagnostics,
+} from '../../core/utils/venmo-diagnostics.util';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 
 const PRESET_AMOUNTS = [5, 10, 25, 50] as const;
@@ -88,6 +94,9 @@ export class ContributeComponent implements OnInit {
   readonly venmoEligible = signal(false);
   readonly venmoLoading  = signal(false);
   readonly venmoRendered = signal(false);
+  readonly venmoDiagnostics = signal<VenmoDiagnostics | null>(null);
+  readonly venmoSupportMessage = computed(() => getVenmoSupportMessage(this.venmoDiagnostics()));
+  readonly showVenmoDiagnostics = !environment.production || this.route.snapshot.queryParamMap.get('venmoDebug') === '1';
   private venmoRenderToken = 0;
 
   readonly form: FormGroup<ContributeForm> = this.fb.group({
@@ -245,9 +254,15 @@ export class ContributeComponent implements OnInit {
       if (renderToken !== this.venmoRenderToken) return;
 
       const buttons = this.createVenmoButtons(paypal);
-      this.venmoEligible.set(buttons.isEligible());
+      const eligible = buttons.isEligible();
+      this.venmoEligible.set(eligible);
+      this.venmoDiagnostics.set(collectVenmoDiagnostics(eligible));
 
-      if (!buttons.isEligible()) {
+      if (this.showVenmoDiagnostics) {
+        console.info('[Venmo diagnostics][contribute]', this.venmoDiagnostics());
+      }
+
+      if (!eligible) {
         this.venmoLoading.set(false);
         return;
       }

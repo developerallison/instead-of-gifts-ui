@@ -221,8 +221,20 @@
                   <p class="payment-note">Loading Venmo...</p>
                 } @else if (!venmoEligible()) {
                   <p class="payment-note">
-                    Venmo is only available for eligible US buyers and supported devices or browsers.
+                    {{ venmoSupportMessage() }}
                   </p>
+                }
+
+                @if (showVenmoDiagnostics && venmoDiagnostics(); as diag) {
+                  <details class="venmo-debug">
+                    <summary>Venmo diagnostics</summary>
+                    <p><strong>Eligible:</strong> {{ diag.paypalVenmoEligible ? 'yes' : 'no' }}</p>
+                    <p><strong>Browser:</strong> {{ diag.browserLabel }}</p>
+                    <p><strong>Webview:</strong> {{ diag.isWebView ? 'yes' : 'no' }}</p>
+                    <p><strong>Locale:</strong> {{ diag.language }}</p>
+                    <p><strong>Host:</strong> {{ diag.hostname }}</p>
+                    <p><strong>Hint:</strong> {{ diag.reasonHint }}</p>
+                  </details>
                 }
               </div>
             }

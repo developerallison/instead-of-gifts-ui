@@ -3,6 +3,7 @@ import {
   Component,
   PLATFORM_ID,
   afterNextRender,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -12,6 +13,11 @@ import { SupabaseService } from '../../../core/services/supabase.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { environment } from '../../../../environments/environment';
 import { PayPalSdkService, PayPalNamespace } from '../../../core/services/paypal-sdk.service';
+import {
+  collectVenmoDiagnostics,
+  getVenmoSupportMessage,
+  VenmoDiagnostics,
+} from '../../../core/utils/venmo-diagnostics.util';
 
 const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
 
@@ -86,8 +92,20 @@ const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
               <p class="payment-card__note">Loading Venmo...</p>
             } @else if (!venmoEligible()) {
               <p class="payment-card__note">
-                Venmo is only available for eligible US buyers and supported devices or browsers.
+                {{ venmoSupportMessage() }}
               </p>
+            }
+
+            @if (showVenmoDiagnostics && venmoDiagnostics(); as diag) {
+              <details class="payment-card__debug">
+                <summary>Venmo diagnostics</summary>
+                <p><strong>Eligible:</strong> {{ diag.paypalVenmoEligible ? 'yes' : 'no' }}</p>
+                <p><strong>Browser:</strong> {{ diag.browserLabel }}</p>
+                <p><strong>Webview:</strong> {{ diag.isWebView ? 'yes' : 'no' }}</p>
+                <p><strong>Locale:</strong> {{ diag.language }}</p>
+                <p><strong>Host:</strong> {{ diag.hostname }}</p>
+                <p><strong>Hint:</strong> {{ diag.reasonHint }}</p>
+              </details>
             }
           </div>
         </div>
@@ -202,6 +220,25 @@ const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
       flex-direction: column;
       gap: 0.75rem;
     }
+    .payment-card__debug {
+      border: 1px solid #d9e5d4;
+      border-radius: 12px;
+      background: #f8fbf5;
+      padding: 0.75rem 0.875rem;
+      color: var(--color-text-muted, #6A8272);
+      font-size: 0.8125rem;
+    }
+    .payment-card__debug summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--color-text-dark, #1E2D23);
+      margin-bottom: 0.5rem;
+    }
+    .payment-card__debug p {
+      margin: 0.35rem 0 0;
+      line-height: 1.45;
+      word-break: break-word;
+    }
   `],
 })
 export class UpgradePaymentComponent {
@@ -218,6 +255,9 @@ export class UpgradePaymentComponent {
   readonly venmoEligible = signal(false);
   readonly venmoLoading = signal(false);
   readonly venmoRendered = signal(false);
+  readonly venmoDiagnostics = signal<VenmoDiagnostics | null>(null);
+  readonly venmoSupportMessage = computed(() => getVenmoSupportMessage(this.venmoDiagnostics()));
+  readonly showVenmoDiagnostics = !environment.production || this.route.snapshot.queryParamMap.get('venmoDebug') === '1';
   private venmoRenderToken = 0;
 
   constructor() {
@@ -306,9 +346,15 @@ export class UpgradePaymentComponent {
       if (renderToken !== this.venmoRenderToken) return;
 
       const buttons = this.createVenmoButtons(paypal);
-      this.venmoEligible.set(buttons.isEligible());
+      const eligible = buttons.isEligible();
+      this.venmoEligible.set(eligible);
+      this.venmoDiagnostics.set(collectVenmoDiagnostics(eligible));
 
-      if (!buttons.isEligible()) {
+      if (this.showVenmoDiagnostics) {
+        console.info('[Venmo diagnostics][upgrade]', this.venmoDiagnostics());
+      }
+
+      if (!eligible) {
         this.venmoLoading.set(false);
         return;
       }
