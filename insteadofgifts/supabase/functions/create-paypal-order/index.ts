@@ -124,9 +124,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return respond(500, { error: formatPayPalError(order, 'Failed to create PayPal order.') });
     }
 
-    const approvalUrl = Array.isArray(order.links)
-      ? order.links.find((link: { rel?: string }) => link.rel === 'approve')?.href
-      : null;
+    const approvalUrl = getApprovalUrl(order);
 
     if (!order.id || !approvalUrl) {
       return respond(500, { error: 'PayPal order response missing approval URL.' });
@@ -223,6 +221,30 @@ function formatPayPalError(payload: unknown, fallback: string): string {
   return fallback;
 }
 
+function getApprovalUrl(payload: unknown): string | null {
+  if (!payload || typeof payload !== 'object') return null;
+
+  const topLevelLinks = Array.isArray((payload as { links?: unknown[] }).links)
+    ? (payload as { links: Array<{ rel?: string; href?: string }> }).links
+    : [];
+
+  const preferredTopLevel = topLevelLinks.find((link) =>
+    link.rel === 'approve' || link.rel === 'payer-action'
+  )?.href;
+  if (preferredTopLevel) return preferredTopLevel;
+
+  const paypalLinks = Array.isArray(
+    (payload as { payment_source?: { paypal?: { links?: unknown[] } } }).payment_source?.paypal?.links
+  )
+    ? (payload as { payment_source: { paypal: { links: Array<{ rel?: string; href?: string }> } } })
+      .payment_source.paypal.links
+    : [];
+
+  return paypalLinks.find((link) =>
+    link.rel === 'approve' || link.rel === 'payer-action'
+  )?.href ?? null;
+}
+
 function corsHeaders(): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': '*',
@@ -234,7 +256,7 @@ function corsHeaders(): Record<string, string> {
 function respond(
   status: number,
   body: Record<string, unknown>,
-  cors = false,
+  cors = true,
 ): Response {
   return new Response(JSON.stringify(body), {
     status,
