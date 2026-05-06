@@ -54,6 +54,11 @@ export class CampaignViewComponent implements OnInit {
   readonly copySuccess    = signal(false);
   readonly showThankYou   = signal(false);
   readonly isLoggedIn     = computed(() => this.authSvc.user() !== null);
+  readonly canUpgradeCampaign = computed(() => {
+    const user = this.authSvc.user();
+    const campaign = this.campaign();
+    return !!user && !!campaign && !campaign.isPro && campaign.createdBy === user.id;
+  });
   private sortContributionsDesc(items: ContributionDisplay[]): ContributionDisplay[] {
     return [...items].sort(
       (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)

@@ -415,6 +415,8 @@ export class UpgradePaymentComponent {
           throw new Error('Venmo order ID missing after approval.');
         }
 
+        const campaignId = this.upgradeCampaignId();
+
         const { data: confirmation, error } = await this.supabase.client.functions.invoke<{
           upgradedCampaignId?: string | null;
         }>('confirm-paypal-campaign-payment', {
@@ -427,7 +429,12 @@ export class UpgradePaymentComponent {
         const upgradedCampaignId = confirmation?.upgradedCampaignId
           ? `&upgradedCampaignId=${encodeURIComponent(confirmation.upgradedCampaignId)}`
           : '';
-        window.location.href = `${window.location.origin}/pro/upgrade/success?provider=venmo&confirmed=true&token=${encodeURIComponent(orderId)}${upgradedCampaignId}`;
+        const campaignQuery = campaignId
+          ? `&campaignId=${encodeURIComponent(campaignId)}`
+          : '';
+        window.location.href =
+          `${window.location.origin}/pro/upgrade/success?provider=venmo&confirmed=true` +
+          `&token=${encodeURIComponent(orderId)}${campaignQuery}${upgradedCampaignId}`;
       },
       onCancel: () => {
         this.error.set('Venmo payment was cancelled.');

@@ -83,6 +83,20 @@
         @if (c.description) {
           <p class="campaign-description">{{ c.description }}</p>
         }
+        @if (canUpgradeCampaign()) {
+          <div class="campaign-upgrade-cta">
+            <p class="campaign-upgrade-cta__text">
+              To change this description
+              <a
+                class="campaign-upgrade-cta__link"
+                [routerLink]="['/pro/upgrade/payment']"
+                [queryParams]="{ campaignId: c.id }"
+              >
+                Upgrade to Pro
+              </a>
+            </p>
+          </div>
+        }
 
             <!-- Organiser + deadline meta -->
             <div class="campaign-meta">

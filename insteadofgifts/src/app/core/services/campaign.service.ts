@@ -321,6 +321,7 @@ export class CampaignService {
 
     return {
       id: row.id,
+      createdBy: row.created_by ?? null,
       slug: row.slug,
       title: row.title,
       description: row.description ?? '',

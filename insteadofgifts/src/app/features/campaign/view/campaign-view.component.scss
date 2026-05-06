@@ -250,6 +250,33 @@
   white-space: pre-line;
 }
 
+.campaign-upgrade-cta {
+  margin-top: 0.875rem;
+}
+
+.campaign-upgrade-cta__text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #6A8272);
+}
+
+.campaign-upgrade-cta__link {
+  color: var(--color-pro, #6B3FA0);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+
+  &:hover {
+    color: var(--color-pro-dark, #553183);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-pro, #6B3FA0);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
 // Pro custom message
 
 .custom-message {

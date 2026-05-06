@@ -8,8 +8,6 @@ const CELEBRATION_ALERT_TO_EMAIL =
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-const FRONTEND_URL = Deno.env.get('FRONTEND_URL');
-
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CORS_HEADERS: HeadersInit = {
@@ -35,10 +33,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
     return respond(500, { error: 'Email service is not configured.' });
-  }
-
-  if (!FRONTEND_URL) {
-    return respond(500, { error: 'Frontend URL not configured' });
   }
 
   const authHeader = req.headers.get('authorization') ?? '';
@@ -79,9 +73,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   const creatorName = getDisplayName(user.user_metadata, user.email);
+  const frontendUrl = resolveFrontendUrl(req);
+  if (!frontendUrl) {
+    return respond(500, { error: 'Frontend URL not configured' });
+  }
 
   const celebrationUrl = campaignSlug
-    ? `${FRONTEND_URL}/celebrations/${encodeURIComponent(campaignSlug)}`
+    ? `${frontendUrl}/celebrations/${encodeURIComponent(campaignSlug)}`
     : null;
 
   // Timeout handling for Resend
@@ -149,6 +147,25 @@ function getDisplayName(
     metadata?.['first_name'];
 
   return candidate?.toString().trim() || email;
+}
+
+function resolveFrontendUrl(req: Request): string | null {
+  const origin = req.headers.get('origin')?.trim();
+  if (origin && /^https?:\/\//i.test(origin)) {
+    return origin.replace(/\/+$/, '');
+  }
+
+  const referer = req.headers.get('referer')?.trim();
+  if (referer) {
+    try {
+      return new URL(referer).origin.replace(/\/+$/, '');
+    } catch {
+      // Ignore invalid referer and fall back to configuration.
+    }
+  }
+
+  const configuredUrl = Deno.env.get('FRONTEND_URL')?.trim();
+  return configuredUrl ? configuredUrl.replace(/\/+$/, '') : null;
 }
 
 function buildTextBody(input: {

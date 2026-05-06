@@ -3,6 +3,7 @@ export type CampaignFundUse = 'educational' | 'personal';
 
 export interface Campaign {
   id: string;
+  createdBy?: string | null;
   slug: string;
   title: string;
   description: string;

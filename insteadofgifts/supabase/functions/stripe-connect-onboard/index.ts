@@ -101,8 +101,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
 
     // ── Generate an AccountLink for onboarding ────────────────────────────
-    const frontendUrl =
-      Deno.env.get('FRONTEND_URL') ?? 'http://localhost:4200';
+    const frontendUrl = resolveFrontendUrl(req);
 
     const accountLink = await stripe.accountLinks.create({
       account:     stripeAccountId,
@@ -135,6 +134,24 @@ function corsHeaders(): Record<string, string> {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
   };
+}
+
+function resolveFrontendUrl(req: Request): string {
+  const origin = req.headers.get('origin')?.trim();
+  if (origin && /^https?:\/\//i.test(origin)) {
+    return origin.replace(/\/+$/, '');
+  }
+
+  const referer = req.headers.get('referer')?.trim();
+  if (referer) {
+    try {
+      return new URL(referer).origin.replace(/\/+$/, '');
+    } catch {
+      // Ignore invalid referer and fall back to configuration.
+    }
+  }
+
+  return (Deno.env.get('FRONTEND_URL') ?? 'http://localhost:4200').replace(/\/+$/, '');
 }
 
 function respond(

@@ -48,10 +48,6 @@ const supabaseAdmin = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
 );
 
-/** Platform fee percentage taken as an application fee. Default: 5%. */
-const PLATFORM_FEE_PERCENT =
-  parseFloat(Deno.env.get('PLATFORM_FEE_PERCENT') ?? '5');
-
 // ---------------------------------------------------------------------------
 // Handler
 // ---------------------------------------------------------------------------
@@ -137,11 +133,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   // ── Create Stripe Checkout Session ─────────────────────────────────────────
   try {
-    // Build optional Connect params (only when organiser has a connected account).
-    const applicationFeeAmount = organiserStripeAccountId
-      ? Math.round(amountPence * (PLATFORM_FEE_PERCENT / 100))
-      : undefined;
-
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -180,11 +171,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
           is_anonymous:     isAnonymous ? 'true' : 'false',
           amount_pence:     String(amountPence),
         },
-        // Route funds directly to the organiser's connected account.
-        // Falls back to the platform account when no connected account exists.
+        // Send the full donation to the organiser's connected account when
+        // available. Campaign Pro payments are handled in a separate checkout
+        // flow that remains on the platform account.
         ...(organiserStripeAccountId && {
-          transfer_data:          { destination: organiserStripeAccountId },
-          application_fee_amount: applicationFeeAmount,
+          transfer_data: { destination: organiserStripeAccountId },
         }),
       },
     });
@@ -193,8 +184,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       `[create-checkout-session] Created session ${session.id} ` +
       `for campaign ${campaignId}, amount ${amountPence} cents` +
       (organiserStripeAccountId
-        ? `, routed to connected account ${organiserStripeAccountId}` +
-          `, fee ${applicationFeeAmount} cents`
+        ? `, routed in full to connected account ${organiserStripeAccountId}`
         : ', platform account (no connected organiser)')
     );
 
