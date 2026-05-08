@@ -1,7 +1,7 @@
 import { AppEnvironment } from './environment.model';
 
 /** Production environment. Replace these values with your production providers/projects. */
-const supabaseProjectUrl = 'https://mcxijpqkpvyjxmooovkt.supabase.co';
+const supabaseProjectUrl = 'https://auth.insteadofgifts.com';
 
 export const environment: AppEnvironment = {
   production: true,
