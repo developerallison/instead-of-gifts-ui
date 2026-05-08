@@ -8,9 +8,5 @@ export interface AppEnvironment {
   stripe: {
     publishableKey: string;
   };
-  paypal: {
-    clientId: string;
-    environment: 'sandbox' | 'production';
-  };
   apiUrl: string;
 }

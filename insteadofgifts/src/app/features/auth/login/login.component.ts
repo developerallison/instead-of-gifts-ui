@@ -1,9 +1,9 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  PLATFORM_ID,
   inject,
   signal,
-  ChangeDetectionStrategy,
-  PLATFORM_ID,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import {
@@ -18,39 +18,28 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
-// ---------------------------------------------------------------------------
-// Custom validator
-// ---------------------------------------------------------------------------
-
-/** Group-level validator: password and confirmPassword fields must match. */
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
-  const pw  = group.get('password')?.value as string;
-  const cpw = group.get('confirmPassword')?.value as string;
-  return pw && cpw && pw !== cpw ? { passwordMismatch: true } : null;
+  const password = group.get('password')?.value as string;
+  const confirmPassword = group.get('confirmPassword')?.value as string;
+  return password && confirmPassword && password !== confirmPassword
+    ? { passwordMismatch: true }
+    : null;
 }
 
-// ---------------------------------------------------------------------------
-// Form interfaces
-// ---------------------------------------------------------------------------
-
 interface LoginFormType {
-  email:    FormControl<string>;
+  email: FormControl<string>;
   password: FormControl<string>;
 }
 
 interface SignUpFormType {
-  email:           FormControl<string>;
-  password:        FormControl<string>;
+  email: FormControl<string>;
+  password: FormControl<string>;
   confirmPassword: FormControl<string>;
 }
 
 interface ForgotFormType {
   email: FormControl<string>;
 }
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 @Component({
   selector: 'app-login',
@@ -61,57 +50,46 @@ interface ForgotFormType {
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  private readonly auth       = inject(AuthService);
-  private readonly router     = inject(Router);
-  private readonly fb         = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
   private readonly platformId = inject(PLATFORM_ID);
 
-  // ── Panel mode ─────────────────────────────────────────────────────────────
-  /** Toggles the left panel between the log-in form and the forgot-password form. */
   readonly leftMode = signal<'login' | 'forgot'>('login');
 
-  // ── Password visibility toggles ────────────────────────────────────────────
-  readonly showLoginPw   = signal(false);
-  readonly showSignUpPw  = signal(false);
+  readonly showLoginPw = signal(false);
+  readonly showSignUpPw = signal(false);
   readonly showConfirmPw = signal(false);
 
-  // ── Loading / error state ──────────────────────────────────────────────────
-  readonly loginLoading  = signal(false);
+  readonly loginLoading = signal(false);
   readonly signUpLoading = signal(false);
-  readonly resetLoading  = signal(false);
-  /** 'google' or 'apple' while an OAuth redirect is in-flight. */
-  readonly oauthLoading  = signal<'google' | 'apple' | null>(null);
+  readonly resetLoading = signal(false);
+  readonly oauthLoading = signal<'google' | null>(null);
 
-  readonly loginError  = signal<string | null>(null);
+  readonly loginError = signal<string | null>(null);
   readonly signUpError = signal<string | null>(null);
-  readonly resetError  = signal<string | null>(null);
+  readonly resetError = signal<string | null>(null);
 
-  /** True after a password-reset email is sent successfully. */
   readonly resetSent = signal(false);
-  /** True when signup needs email confirmation before the user can log in. */
   readonly signUpConfirmPending = signal(false);
 
-  // ── Forms ──────────────────────────────────────────────────────────────────
-
   readonly loginForm: FormGroup<LoginFormType> = this.fb.group({
-    email:    this.fb.nonNullable.control('', [Validators.required, Validators.email]),
+    email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
     password: this.fb.nonNullable.control('', Validators.required),
   });
 
   readonly signUpForm: FormGroup<SignUpFormType> = this.fb.group(
     {
-      email:           this.fb.nonNullable.control('', [Validators.required, Validators.email]),
-      password:        this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8)]),
+      email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
+      password: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8)]),
       confirmPassword: this.fb.nonNullable.control('', Validators.required),
     },
-    { validators: passwordsMatchValidator }
+    { validators: passwordsMatchValidator },
   );
 
   readonly forgotForm: FormGroup<ForgotFormType> = this.fb.group({
     email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
   });
-
-  // ── Submit handlers ────────────────────────────────────────────────────────
 
   async onLogin(): Promise<void> {
     this.loginForm.markAllAsTouched();
@@ -176,55 +154,46 @@ export class LoginComponent {
 
   async onLoginWithGoogle(): Promise<void> {
     if (!isPlatformBrowser(this.platformId) || this.oauthLoading()) return;
+
     this.oauthLoading.set('google');
     this.signUpError.set(null);
     try {
       await this.auth.signInWithGoogle();
-      // Browser navigates away — no further action needed
     } catch (err: unknown) {
       this.signUpError.set(this.friendly(err));
       this.oauthLoading.set(null);
     }
   }
-
-  async onLoginWithApple(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId) || this.oauthLoading()) return;
-    this.oauthLoading.set('apple');
-    this.signUpError.set(null);
-    try {
-      await this.auth.signInWithApple();
-    } catch (err: unknown) {
-      this.signUpError.set(this.friendly(err));
-      this.oauthLoading.set(null);
-    }
-  }
-
-  // ── View helpers ──────────────────────────────────────────────────────────
 
   hasError(form: FormGroup, ctrl: string, err: string): boolean {
-    const c = form.get(ctrl);
-    return !!(c?.touched && c.hasError(err));
+    const control = form.get(ctrl);
+    return !!(control?.touched && control.hasError(err));
   }
 
   hasGroupError(form: FormGroup, err: string): boolean {
     return !!(form.touched && form.hasError(err));
   }
 
-  // ── Private helpers ───────────────────────────────────────────────────────
-
   private friendly(err: unknown): string {
     if (!(err instanceof Error)) return 'Something went wrong. Please try again.';
-    const m = err.message.toLowerCase();
-    if (m.includes('invalid login credentials') || m.includes('invalid credentials'))
+
+    const message = err.message.toLowerCase();
+    if (message.includes('invalid login credentials') || message.includes('invalid credentials')) {
       return 'Incorrect email or password.';
-    if (m.includes('email not confirmed'))
+    }
+    if (message.includes('email not confirmed')) {
       return 'Please verify your email before logging in.';
-    if (m.includes('already registered') || m.includes('user already exists'))
+    }
+    if (message.includes('already registered') || message.includes('user already exists')) {
       return 'An account with this email already exists. Try logging in.';
-    if (m.includes('password should be at least'))
+    }
+    if (message.includes('password should be at least')) {
       return 'Password must be at least 8 characters.';
-    if (m.includes('rate limit') || m.includes('too many'))
-      return 'Too many attempts — please wait a moment and try again.';
+    }
+    if (message.includes('rate limit') || message.includes('too many')) {
+      return 'Too many attempts - please wait a moment and try again.';
+    }
+
     return err.message;
   }
 }

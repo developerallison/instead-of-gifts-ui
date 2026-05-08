@@ -1,6 +1,6 @@
 import { AppEnvironment } from './environment.model';
 
-/** Development environment. Point this at your dev Supabase/Stripe/PayPal setup. */
+/** Development environment. Point this at your dev Supabase/Stripe setup. */
 const supabaseProjectUrl = 'https://mmvabtwjneyrptdmtass.supabase.co';
 
 export const environment: AppEnvironment = {
@@ -13,10 +13,6 @@ export const environment: AppEnvironment = {
   stripe: {
     publishableKey: 'pk_test_51TLpjTK7vuC5QvGEEg3gQzkA910OMf8znTfz7ANIqHZQihqdzG2LNZ3dTmZaTHrjkqQK6JN10ckuYtCRqADIazwV00IeI951pE', //allison@insteadofgifts.com
     // publishableKey: 'pk_test_51TEj2wKPfi0NJ0mnhOHkRLGQLjRJtHjZvngjgTBqBp7FPA4R1lS3TTDxc5CQDNp1UPQCDN64XKwQpCN4HX2L2GYa00KLEtoXPy', //developer@insteadofgifts.com
-  },
-  paypal: {
-    clientId: 'AYloqzb9C8jsFWuL5B5WR8hXrIWHtImNXIEMziOtF1A--s6ksFBcjfbKVkHXI0IKdD7ET8g4xzuagToH',
-    environment: 'sandbox',
   },
   /**
    * For local Edge Functions, switch this to `http://localhost:54321/functions/v1`.

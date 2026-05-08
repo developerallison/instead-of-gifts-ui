@@ -1,6 +1,5 @@
 <div class="auth-page">
 
-  <!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
   <header class="auth-header">
     <a routerLink="/" class="auth-logo" aria-label="InsteadOfGifts home">
       <img
@@ -11,19 +10,14 @@
     </a>
   </header>
 
-  <!-- ══ CARD ══════════════════════════════════════════════════════════════ -->
   <div class="auth-card" role="main">
 
-    <!-- ── LEFT PANEL: Log In / Forgot Password ──────────────────────────── -->
     <section class="auth-panel" aria-labelledby="login-heading">
 
       @if (leftMode() === 'login') {
-        <!-- ─── Log In ─────────────────────────────────────────────────── -->
         <h2 id="login-heading" class="auth-panel__heading">Log In</h2>
 
         <form [formGroup]="loginForm" (ngSubmit)="onLogin()" novalidate class="auth-form">
-
-          <!-- Email -->
           <div class="auth-field">
             <div class="input-wrap">
               <span class="input-icon" aria-hidden="true">
@@ -47,7 +41,6 @@
             }
           </div>
 
-          <!-- Password -->
           <div class="auth-field">
             <div class="input-wrap">
               <span class="input-icon" aria-hidden="true">
@@ -100,16 +93,13 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
               </svg>
-              Signing in…
+              Signing in...
             } @else {
               Log In
             }
           </button>
-
         </form>
-
       } @else {
-        <!-- ─── Forgot Password ─────────────────────────────────────────── -->
         <button
           type="button"
           class="back-link"
@@ -168,7 +158,7 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
                 </svg>
-                Sending…
+                Sending...
               } @else {
                 Send reset link
               }
@@ -177,19 +167,16 @@
         }
       }
 
-    </section><!-- /left panel -->
+    </section>
 
-    <!-- ── DIVIDER ─────────────────────────────────────────────────────────── -->
     <div class="auth-divider" role="separator">
       <span class="auth-divider__label">or</span>
     </div>
 
-    <!-- ── RIGHT PANEL: Sign Up ───────────────────────────────────────────── -->
     <section class="auth-panel" aria-labelledby="signup-heading">
       <h2 id="signup-heading" class="auth-panel__heading">Sign Up</h2>
 
       @if (signUpConfirmPending()) {
-        <!-- Awaiting email confirmation -->
         <div class="confirm-box">
           <div class="confirm-box__icon confirm-box__icon--mail" aria-hidden="true">
             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a2 2 0 00-2 2v.01L10 11l9-4.99V6a2 2 0 00-2-2H3zm14 3.236l-7 3.888-7-3.888V14a2 2 0 002 2h10a2 2 0 002-2V7.236z"/></svg>
@@ -208,9 +195,7 @@
             Use a different email
           </button>
         </div>
-
       } @else {
-        <!-- OAuth buttons -->
         <div class="oauth-group">
           <button
             type="button"
@@ -224,9 +209,8 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
               </svg>
-              Connecting…
+              Connecting...
             } @else {
-              <!-- Google "G" SVG -->
               <svg class="oauth-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -236,31 +220,8 @@
               Continue with Google
             }
           </button>
-
-          <button
-            type="button"
-            class="auth-btn auth-btn--oauth auth-btn--apple"
-            [disabled]="oauthLoading() !== null"
-            (click)="onLoginWithApple()"
-            aria-label="Continue with Apple"
-          >
-            @if (oauthLoading() === 'apple') {
-              <svg class="btn-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-              </svg>
-              Connecting…
-            } @else {
-              <!-- Apple icon -->
-              <svg class="oauth-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.4.07 2.38.74 3.2.8 1.2-.24 2.35-.92 3.65-.84 1.55.12 2.72.72 3.47 1.86-3.18 1.94-2.43 5.78.37 6.9-.65 1.66-1.48 3.3-2.69 4.16zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-              </svg>
-              Continue with Apple
-            }
-          </button>
         </div>
 
-        <!-- Inner divider: "or sign up with email" -->
         <div class="inner-divider">
           <span class="inner-divider__label">or sign up with email</span>
         </div>
@@ -270,8 +231,6 @@
         }
 
         <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()" novalidate class="auth-form">
-
-          <!-- Email -->
           <div class="auth-field">
             <div class="input-wrap">
               <span class="input-icon" aria-hidden="true">
@@ -294,7 +253,6 @@
             }
           </div>
 
-          <!-- Password -->
           <div class="auth-field">
             <div class="input-wrap">
               <span class="input-icon" aria-hidden="true">
@@ -324,7 +282,6 @@
             }
           </div>
 
-          <!-- Confirm Password -->
           <div class="auth-field">
             <div class="input-wrap">
               <span class="input-icon" aria-hidden="true">
@@ -364,20 +321,17 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
               </svg>
-              Creating account…
+              Creating account...
             } @else {
               Sign Up
             }
           </button>
-
         </form>
       }
+    </section>
 
-    </section><!-- /right panel -->
+  </div>
 
-  </div><!-- /auth-card -->
-
-  <!-- ══ FOOTER ═════════════════════════════════════════════════════════════ -->
   <footer class="auth-footer">
     <p class="auth-footer__copy">© 2024 InsteadOfGifts. All rights reserved.</p>
     <nav class="auth-footer__links" aria-label="Footer">

@@ -9,7 +9,6 @@ import { RouterLink } from '@angular/router';
 import { Campaign } from '../../../core/models/campaign.model';
 import { CampaignTotals } from '../../../core/services/supabase.service';
 import { ButtonComponent } from '../button/button.component';
-import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 import { QrCodeComponent } from '../qr-code/qr-code.component';
 
 export type CampaignCardMode = 'public' | 'dashboard';
@@ -18,7 +17,7 @@ export type CampaignCardMode = 'public' | 'dashboard';
   selector: 'app-campaign-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass, RouterLink, ButtonComponent, ProgressBarComponent, QrCodeComponent, NgOptimizedImage],
+  imports: [NgClass, RouterLink, ButtonComponent, QrCodeComponent, NgOptimizedImage],
   templateUrl: './campaign-card.component.html',
   styleUrl: './campaign-card.component.scss',
 })

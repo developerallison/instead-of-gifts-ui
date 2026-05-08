@@ -307,12 +307,14 @@ export class CampaignService {
       throw error;
     }
 
-    return (data as CampaignRow[]).map((row) => this.toModel(row, 0));
+    return (data as CampaignRow[])
+      .map((row) => this.toModel(row, 0))
+      .filter((campaign) => campaign.status !== 'closed');
   }
 
   private toModel(row: CampaignRow, amountCollectedPence: number): Campaign {
     let status: CampaignStatus = 'active';
-    if (!row.is_active) {
+    if (!row.is_active || hasCampaignDeadlinePassed(row.deadline)) {
       status = 'closed';
     } else {
       const ageMs = Date.now() - new Date(row.created_at).getTime();
@@ -340,4 +342,32 @@ export class CampaignService {
       stripeOnboardingComplete: row.stripe_onboarding_complete ?? false,
     };
   }
+}
+
+function hasCampaignDeadlinePassed(deadline: string | null): boolean {
+  if (!deadline) {
+    return false;
+  }
+
+  const dateOnlyMatch = deadline.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+    const deadlineEnd = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      23,
+      59,
+      59,
+      999,
+    );
+    return Date.now() > deadlineEnd.getTime();
+  }
+
+  const parsedDeadline = new Date(deadline);
+  if (Number.isNaN(parsedDeadline.getTime())) {
+    return false;
+  }
+
+  return Date.now() > parsedDeadline.getTime();
 }

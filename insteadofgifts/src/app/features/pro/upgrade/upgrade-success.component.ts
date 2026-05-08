@@ -124,27 +124,11 @@ export class UpgradeSuccessComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const url = new URL(window.location.href);
-    const provider = url.searchParams.get('provider') ?? 'stripe';
     const sessionId = url.searchParams.get('session_id');
-    const paypalOrderId = url.searchParams.get('token');
-    const alreadyConfirmed = url.searchParams.get('confirmed') === 'true';
     const campaignId = url.searchParams.get('campaignId') ?? this.getPendingUpgradeCampaignId();
-    const upgradedCampaignIdFromUrl = url.searchParams.get('upgradedCampaignId');
 
     try {
-      if ((provider === 'paypal' || provider === 'venmo') && paypalOrderId && !alreadyConfirmed) {
-        const { data, error } = await this.supabase.client.functions.invoke<{
-          campaignCredits?: number;
-          upgradedCampaignId?: string | null;
-        }>('confirm-paypal-campaign-payment', {
-          body: { orderId: paypalOrderId },
-        });
-        if (error) throw new Error(error.message || 'Failed to confirm the PayPal payment.');
-        this.upgradedCampaignId.set(data?.upgradedCampaignId ?? null);
-        this.updateConfirmationMessage(data?.campaignCredits ?? this.campaignCredits(), data?.upgradedCampaignId ?? null);
-      } else if (provider === 'venmo' && alreadyConfirmed) {
-        this.upgradedCampaignId.set(upgradedCampaignIdFromUrl);
-      } else if (sessionId) {
+      if (sessionId) {
         const { data, error } = await this.supabase.client.functions.invoke<{
           campaignCredits?: number;
           upgradedCampaignId?: string | null;

@@ -204,12 +204,9 @@
               }
             </div>
 
-            <app-progress-bar
-              [current]="totals().totalPence"
-              [target]="c.targetAmount"
-              [currency]="c.currency"
-              [showLabel]="true"
-            />
+            <p class="progress-card__amount">
+              {{ formatAmount(totals().total, c.currency) }}
+            </p>
 
             <p class="progress-card__count">
               {{ totals().count }}

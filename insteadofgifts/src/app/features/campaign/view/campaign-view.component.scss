@@ -347,6 +347,14 @@
   color: var(--color-text-dark, #1E2D23);
 }
 
+.progress-card__amount {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-dark, #1E2D23);
+}
+
 .progress-card__count {
   font-size: 0.875rem;
   color: var(--color-text-muted, #6A8272);

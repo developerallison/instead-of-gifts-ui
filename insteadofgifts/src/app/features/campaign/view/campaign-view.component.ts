@@ -25,7 +25,6 @@ const FUND_USE_DEFAULT_MESSAGES: Record<CampaignFundUse, string> = {
   personal:
     "In celebrating this milestone, we're choosing to focus on growth and meaningful experiences rather than traditional gifts. Your support is truly appreciated.",
 };
-import { ProgressBarComponent } from '../../../shared/components/progress-bar/progress-bar.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { QrCodeComponent } from '../../../shared/components/qr-code/qr-code.component';
 
@@ -33,7 +32,7 @@ import { QrCodeComponent } from '../../../shared/components/qr-code/qr-code.comp
   selector: 'app-campaign-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ProgressBarComponent, ButtonComponent, DatePipe, QrCodeComponent, NgOptimizedImage],
+  imports: [RouterLink, ButtonComponent, DatePipe, QrCodeComponent, NgOptimizedImage],
   templateUrl: './campaign-view.component.html',
   styleUrl: './campaign-view.component.scss',
 })
@@ -86,11 +85,7 @@ export class CampaignViewComponent implements OnInit {
 
     // Show thank-you popup when a payment provider redirects back after success.
     const wasContributed = this.route.snapshot.queryParamMap.get('contributed') === 'true';
-    const provider       = this.route.snapshot.queryParamMap.get('provider') ?? 'stripe';
     const sessionId      = this.route.snapshot.queryParamMap.get('session_id') ?? null;
-    const paypalOrderId  = this.route.snapshot.queryParamMap.get('token')
-      ?? this.route.snapshot.queryParamMap.get('order_id')
-      ?? null;
     if (wasContributed) {
       this.showThankYou.set(true);
       // this.router.navigate([], {
@@ -117,20 +112,7 @@ export class CampaignViewComponent implements OnInit {
 
       // Post-payment: confirm the provider-specific payment and refresh the view.
       if (wasContributed) {
-        if ((provider === 'paypal' || provider === 'venmo') && paypalOrderId) {
-          try {
-            await this.supabaseSvc.confirmPayPalContribution(paypalOrderId);
-          } catch { /* silent */ }
-
-          try {
-            const [refreshedTotals, refreshedContribs] = await Promise.all([
-              this.supabaseSvc.getCampaignTotals(c.id),
-              this.supabaseSvc.getContributions(c.id, 10),
-            ]);
-            this.totals.set(refreshedTotals);
-            this.contributions.set(this.sortContributionsDesc(refreshedContribs));
-          } catch { /* silent */ }
-        } else if (sessionId) {
+        if (sessionId) {
           try {
             await this.supabaseSvc.confirmContribution(sessionId);
           } catch { /* webhook will handle it if the Edge Function fails */ }
