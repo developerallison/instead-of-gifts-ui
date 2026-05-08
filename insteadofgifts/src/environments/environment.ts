@@ -1,7 +1,7 @@
 import { AppEnvironment } from './environment.model';
 
 /** Development environment. Point this at your dev Supabase/Stripe/PayPal setup. */
-const supabaseProjectUrl = 'https://mmvabtwjneyrptdmtass.supabase.co';
+const supabaseProjectUrl = 'https://auth.insteadofgifts.com';
 
 export const environment: AppEnvironment = {
   production: false,
