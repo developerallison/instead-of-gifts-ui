@@ -1,10 +1,10 @@
 import {
+  ChangeDetectionStrategy,
   Component,
-  OnInit,
   OnDestroy,
+  OnInit,
   inject,
   signal,
-  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -24,19 +24,45 @@ import { Campaign, CampaignFundUse } from '../../../core/models/campaign.model';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { ImageUploadComponent } from '../../../shared/components/image-upload/image-upload.component';
 
-/** Rejects past dates. */
+const MAX_CAMPAIGN_DURATION_DAYS = 30;
+
+function startOfToday(): Date {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+function startOfDay(date: Date): Date {
+  const copy = new Date(date);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
+
+function addDays(date: Date, days: number): Date {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
+}
+
+function formatDateInputValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function futureDateValidator(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
   const chosen = new Date(control.value);
-  const today  = new Date(); today.setHours(0, 0, 0, 0);
+  const today = startOfToday();
   return chosen >= today ? null : { pastDate: true };
 }
 
 export interface EditCampaignForm {
-  title:         FormControl<string>;
-  description:   FormControl<string>;
-  fundUse:       FormControl<CampaignFundUse | null>;
-  deadline:      FormControl<string | null>;
+  title: FormControl<string>;
+  description: FormControl<string>;
+  fundUse: FormControl<CampaignFundUse | null>;
+  deadline: FormControl<string | null>;
   customMessage: FormControl<string>;
 }
 
@@ -46,28 +72,26 @@ export interface EditCampaignForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, RouterLink, ButtonComponent, ImageUploadComponent],
   templateUrl: './campaign-edit.component.html',
-  styleUrl:    './campaign-edit.component.scss',
+  styleUrl: './campaign-edit.component.scss',
 })
 export class CampaignEditComponent implements OnInit, OnDestroy {
-  private readonly fb          = inject(FormBuilder);
-  private readonly route       = inject(ActivatedRoute);
-  private readonly router      = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly campaignSvc = inject(CampaignService);
   private readonly supabaseSvc = inject(SupabaseService);
-  private readonly toastSvc    = inject(ToastService);
+  private readonly toastSvc = inject(ToastService);
 
-  // ── Signals ────────────────────────────────────────────────────────────────
-  readonly loading     = signal(true);
-  readonly loadError   = signal<string | null>(null);
-  readonly submitting  = signal(false);
+  readonly loading = signal(true);
+  readonly loadError = signal<string | null>(null);
+  readonly submitting = signal(false);
   readonly submitError = signal<string | null>(null);
-  readonly campaign    = signal<Campaign | null>(null);
+  readonly campaign = signal<Campaign | null>(null);
   readonly hasContributions = signal(false);
 
-  /** Today's date in YYYY-MM-DD — used as the `min` attr on the date input. */
-  readonly todayIso = new Date().toISOString().split('T')[0];
+  readonly todayIso = formatDateInputValue(startOfToday());
+  readonly maxDateIso = signal<string>('2099-12-31');
 
-  // ── Form ───────────────────────────────────────────────────────────────────
   readonly form: FormGroup<EditCampaignForm> = this.fb.group({
     title: this.fb.nonNullable.control('', [
       Validators.required,
@@ -88,21 +112,21 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  // ── Lifecycle ──────────────────────────────────────────────────────────────
-
   async ngOnInit(): Promise<void> {
     const slug = this.route.snapshot.paramMap.get('id') ?? '';
 
     try {
-      const c = await this.campaignSvc.getCampaignBySlug(slug);
-      if (!c) {
+      const campaign = await this.campaignSvc.getCampaignBySlug(slug);
+      if (!campaign) {
         this.loadError.set('Celebration not found.');
         return;
       }
 
-      this.campaign.set(c);
-      this.populateForm(c);
-      const totals = await this.supabaseSvc.getCampaignTotals(c.id);
+      this.campaign.set(campaign);
+      this.maxDateIso.set(this.getCampaignMaxDateIso(campaign));
+      this.populateForm(campaign);
+
+      const totals = await this.supabaseSvc.getCampaignTotals(campaign.id);
       if (totals.count > 0) {
         this.hasContributions.set(true);
         this.form.controls.title.disable({ emitEvent: false });
@@ -114,7 +138,6 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
       this.loading.set(false);
     }
 
-    // Re-validate deadline live as the user types (futureDateValidator needs current date)
     this.form.controls.deadline.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -127,39 +150,55 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ── Private helpers ────────────────────────────────────────────────────────
+  private populateForm(campaign: Campaign): void {
+    this.form.controls.deadline.setValidators([
+      Validators.required,
+      futureDateValidator,
+      this.maxDeadlineValidator(campaign),
+    ]);
+    this.form.controls.deadline.updateValueAndValidity({ emitEvent: false });
 
-  private populateForm(c: Campaign): void {
     this.form.patchValue({
-      title:         c.title,
-      description:   c.description ?? '',
-      fundUse:       c.fundUse ?? null,
-      // endsAt is an ISO string; extract date part for the <input type="date">
-      deadline:      c.endsAt ? c.endsAt.split('T')[0] : null,
-      customMessage: c.customMessage ?? '',
+      title: campaign.title,
+      description: campaign.description ?? '',
+      fundUse: campaign.fundUse ?? null,
+      deadline: campaign.endsAt ? campaign.endsAt.split('T')[0] : null,
+      customMessage: campaign.customMessage ?? '',
     });
   }
 
-  // ── Submit ─────────────────────────────────────────────────────────────────
+  private maxDeadlineValidator(campaign: Campaign) {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+
+      const chosen = new Date(control.value);
+      const maxDate = addDays(startOfDay(new Date(campaign.createdAt)), MAX_CAMPAIGN_DURATION_DAYS);
+      return chosen <= maxDate ? null : { maxCampaignLength: true };
+    };
+  }
+
+  private getCampaignMaxDateIso(campaign: Campaign): string {
+    const maxDate = addDays(startOfDay(new Date(campaign.createdAt)), MAX_CAMPAIGN_DURATION_DAYS);
+    return formatDateInputValue(maxDate);
+  }
 
   async onSubmit(): Promise<void> {
     this.form.markAllAsTouched();
-    const c = this.campaign();
-    if (this.form.invalid || this.submitting() || !c) return;
+    const campaign = this.campaign();
+    if (this.form.invalid || this.submitting() || !campaign) return;
 
     this.submitting.set(true);
     this.submitError.set(null);
 
     try {
-      const { title, description, fundUse, deadline, customMessage } =
-        this.form.getRawValue();
+      const { title, description, fundUse, deadline, customMessage } = this.form.getRawValue();
 
-      await this.campaignSvc.updateCampaign(c.id, {
+      await this.campaignSvc.updateCampaign(campaign.id, {
         title,
-        description:       description || undefined,
-        fundUse:           fundUse ?? null,
-        deadline:          deadline || null,
-        customMessage:     c.isPro ? (customMessage || undefined) : undefined,
+        description: description || undefined,
+        fundUse: fundUse ?? null,
+        deadline: deadline || null,
+        customMessage: campaign.isPro ? (customMessage || undefined) : undefined,
       });
 
       this.toastSvc.success('Celebration updated successfully.');
@@ -170,8 +209,6 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
       this.submitting.set(false);
     }
   }
-
-  // ── Template helpers ───────────────────────────────────────────────────────
 
   hasError(controlName: keyof EditCampaignForm, error: string): boolean {
     const ctrl = this.form.get(controlName);
@@ -184,5 +221,9 @@ export class CampaignEditComponent implements OnInit, OnDestroy {
 
   get customMessageLength(): number {
     return this.form.controls.customMessage.value.length;
+  }
+
+  get maxCampaignDurationDays(): number {
+    return MAX_CAMPAIGN_DURATION_DAYS;
   }
 }

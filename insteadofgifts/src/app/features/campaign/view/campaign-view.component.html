@@ -34,7 +34,12 @@
             <button type="button" class="thank-you-modal__btn thank-you-modal__btn--primary" (click)="dismissThankYou()">
               Done
             </button>
-            <button type="button" class="thank-you-modal__btn thank-you-modal__btn--ghost" (click)="copyLink()">
+            <button
+              type="button"
+              class="thank-you-modal__btn thank-you-modal__btn--ghost"
+              [disabled]="!canCopyLink()"
+              (click)="copyLink()"
+            >
               Share This Page
               <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M12.25 3a.75.75 0 000 1.5h2.19l-5.97 5.97a.75.75 0 101.06 1.06l5.97-5.97v2.19a.75.75 0 001.5 0V3.75A.75.75 0 0016.25 3h-4z" clip-rule="evenodd"/>
@@ -131,20 +136,32 @@
             </div>
           } @else {
             @if (isLoggedIn()) {
-              <button
-                type="button"
-                class="locked-pro-trigger cover-placeholder"
-                (click)="navigateToUpgrade()"
-                aria-label="Upgrade this celebration to unlock cover images"
-              >
-                <svg class="w-14 h-14 text-mint" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                @if (!c.isPro) {
-                  <p class="cover-placeholder__hint">Cover images available on Pro</p>
-                }
-              </button>
+              @if (canUpgradeCampaign()) {
+                <button
+                  type="button"
+                  class="locked-pro-trigger cover-placeholder"
+                  (click)="navigateToUpgrade()"
+                  aria-label="Upgrade this celebration to unlock cover images"
+                >
+                  <svg class="w-14 h-14 text-mint" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  @if (!c.isPro) {
+                    <p class="cover-placeholder__hint">Cover images available on Pro</p>
+                  }
+                </button>
+              } @else {
+                <div class="cover-placeholder cover-placeholder--disabled" aria-disabled="true">
+                  <svg class="w-14 h-14 text-mint" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  @if (!c.isPro) {
+                    <p class="cover-placeholder__hint">Cover images unavailable after the celebration ends</p>
+                  }
+                </div>
+              }
             }
           }
 
@@ -241,6 +258,7 @@
                     variant="secondary"
                     size="sm"
                     type="button"
+                    [disabled]="!canCopyLink()"
                     (clicked)="copyLink()"
                   >
                     @if (copySuccess()) {
@@ -270,19 +288,30 @@
                   <p class="qr-label">Scan to contribute</p>
                 </div>
               } @else {
-                <button
-                  type="button"
-                  class="locked-pro-trigger qr-card__qr qr-card__qr--locked"
-                  (click)="navigateToUpgrade()"
-                  aria-label="Upgrade this celebration to unlock QR codes"
-                >
-                  <app-qr-code
-                    [url]="campaignUrl()"
-                    [isPro]="false"
-                    [size]="180"
-                    [filename]="c.slug"
-                  />
-                </button>
+                @if (canUpgradeCampaign()) {
+                  <button
+                    type="button"
+                    class="locked-pro-trigger qr-card__qr qr-card__qr--locked"
+                    (click)="navigateToUpgrade()"
+                    aria-label="Upgrade this celebration to unlock QR codes"
+                  >
+                    <app-qr-code
+                      [url]="campaignUrl()"
+                      [isPro]="false"
+                      [size]="180"
+                      [filename]="c.slug"
+                    />
+                  </button>
+                } @else {
+                  <div class="qr-card__qr qr-card__qr--locked qr-card__qr--disabled" aria-disabled="true">
+                    <app-qr-code
+                      [url]="campaignUrl()"
+                      [isPro]="false"
+                      [size]="180"
+                      [filename]="c.slug"
+                    />
+                  </div>
+                }
               }
             </div>
           </div>

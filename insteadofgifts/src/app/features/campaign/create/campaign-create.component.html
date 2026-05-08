@@ -124,8 +124,8 @@
               [min]="todayIso"
               [max]="maxDateIso"
               class="field__input field__input--date"
-              [class.field__input--error]="hasError('deadline', 'pastDate') || hasError('deadline', 'required')"
-              [attr.aria-invalid]="(hasError('deadline', 'pastDate') || hasError('deadline', 'required')) || null"
+              [class.field__input--error]="hasError('deadline', 'pastDate') || hasError('deadline', 'required') || hasError('deadline', 'maxCampaignLength')"
+              [attr.aria-invalid]="(hasError('deadline', 'pastDate') || hasError('deadline', 'required') || hasError('deadline', 'maxCampaignLength')) || null"
               aria-describedby="deadline-errors"
             />
             <div id="deadline-errors" aria-live="polite">
@@ -135,8 +135,11 @@
               @if (hasError('deadline', 'pastDate')) {
                 <p class="field__error" role="alert">Please choose a future date.</p>
               }
+              @if (hasError('deadline', 'maxCampaignLength')) {
+                <p class="field__error" role="alert">End date must be within {{ maxCampaignDurationDays }} days of today.</p>
+              }
             </div>
-            <p class="field__hint">Access to the page will expire in 30 days after your celebration starts.</p>
+            <p class="field__hint">Access to the page will expire within {{ maxCampaignDurationDays }} days after your celebration starts.</p>
           </div>
         </section>
 

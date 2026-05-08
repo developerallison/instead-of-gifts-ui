@@ -147,17 +147,21 @@
                 formControlName="deadline"
                 [disabled]="hasContributions()"
                 [min]="todayIso"
+                [max]="maxDateIso()"
                 class="field__input field__input--date"
-                [class.field__input--error]="hasError('deadline', 'pastDate')"
-                [attr.aria-invalid]="hasError('deadline', 'pastDate') || null"
+                [class.field__input--error]="hasError('deadline', 'pastDate') || hasError('deadline', 'maxCampaignLength')"
+                [attr.aria-invalid]="(hasError('deadline', 'pastDate') || hasError('deadline', 'maxCampaignLength')) || null"
                 aria-describedby="deadline-errors"
               />
               <div id="deadline-errors" aria-live="polite">
                 @if (hasError('deadline', 'pastDate')) {
                   <p class="field__error" role="alert">Please choose a future date.</p>
                 }
+                @if (hasError('deadline', 'maxCampaignLength')) {
+                  <p class="field__error" role="alert">End date must stay within {{ maxCampaignDurationDays }} days of the celebration start date.</p>
+                }
               </div>
-              <p class="field__hint">Access to the page will expire in 30 days after your celebration starts.</p>
+              <p class="field__hint">Access to the page will expire within {{ maxCampaignDurationDays }} days after your celebration starts.</p>
             </div>
           </section>
 
@@ -233,7 +237,7 @@
                     variant="pro"
                     size="md"
                     type="button"
-                    [routerLink]="['/pro', 'upgrade']"
+                    [routerLink]="['/pro', 'upgrade', 'payment']"
                     [queryParams]="{ campaignId: campaign()!.id }"
                   >
                     <svg class="w-4 h-4 mr-1" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">

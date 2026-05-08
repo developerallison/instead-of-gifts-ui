@@ -24,12 +24,39 @@ import { ToastService } from '../../../core/services/toast.service';
 import { generateSlug } from '../../../core/utils/slug.util';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 
+const MAX_CAMPAIGN_DURATION_DAYS = 30;
+
+function startOfToday(): Date {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+function addDays(date: Date, days: number): Date {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
+}
+
+function formatDateInputValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function futureDateValidator(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
   const chosen = new Date(control.value);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = startOfToday();
   return chosen >= today ? null : { pastDate: true };
+}
+
+function withinCampaignWindowValidator(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) return null;
+  const chosen = new Date(control.value);
+  const maxDate = addDays(startOfToday(), MAX_CAMPAIGN_DURATION_DAYS);
+  return chosen <= maxDate ? null : { maxCampaignLength: true };
 }
 
 export interface CreateCampaignForm {
@@ -58,8 +85,8 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
   readonly submitting = signal(false);
   readonly submitError = signal<string | null>(null);
   readonly showValidationHint = signal(false);
-  readonly todayIso = new Date().toISOString().split('T')[0];
-  readonly maxDateIso = '2099-12-31';
+  readonly todayIso = formatDateInputValue(startOfToday());
+  readonly maxDateIso = formatDateInputValue(addDays(startOfToday(), MAX_CAMPAIGN_DURATION_DAYS));
   readonly canCreatePaidCampaign = this.proSvc.canCreatePaidCampaign;
   readonly campaignCredits = this.proSvc.campaignCredits;
 
@@ -75,6 +102,7 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
     deadline: this.fb.control<string | null>(null, [
       Validators.required,
       futureDateValidator,
+      withinCampaignWindowValidator,
     ]),
   });
 
@@ -147,5 +175,9 @@ export class CampaignCreateComponent implements OnInit, OnDestroy {
 
   get submitButtonLabel(): string {
     return this.canCreatePaidCampaign() ? 'Create paid celebration' : 'Create free celebration';
+  }
+
+  get maxCampaignDurationDays(): number {
+    return MAX_CAMPAIGN_DURATION_DAYS;
   }
 }

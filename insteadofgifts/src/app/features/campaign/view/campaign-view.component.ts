@@ -53,11 +53,13 @@ export class CampaignViewComponent implements OnInit {
   readonly copySuccess    = signal(false);
   readonly showThankYou   = signal(false);
   readonly isLoggedIn     = computed(() => this.authSvc.user() !== null);
+  readonly isClosed = computed(() => this.campaign()?.status === 'closed');
   readonly canUpgradeCampaign = computed(() => {
     const user = this.authSvc.user();
     const campaign = this.campaign();
-    return !!user && !!campaign && !campaign.isPro && campaign.createdBy === user.id;
+    return !!user && !!campaign && !campaign.isPro && campaign.createdBy === user.id && !this.isClosed();
   });
+  readonly canCopyLink = computed(() => !this.isClosed() && !!this.campaignUrl());
   private sortContributionsDesc(items: ContributionDisplay[]): ContributionDisplay[] {
     return [...items].sort(
       (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)
@@ -69,8 +71,6 @@ export class CampaignViewComponent implements OnInit {
     const c = this.campaign();
     return c ? { ...c, amountCollected: this.totals().totalPence } : null;
   });
-
-  readonly isClosed = computed(() => this.campaign()?.status === 'closed');
 
   readonly campaignUrl = computed(() => {
     if (!isPlatformBrowser(this.platformId)) return '';
@@ -150,7 +150,7 @@ export class CampaignViewComponent implements OnInit {
 
   async copyLink(): Promise<void> {
     const url = this.campaignUrl();
-    if (!url || !isPlatformBrowser(this.platformId)) return;
+    if (!url || !isPlatformBrowser(this.platformId) || !this.canCopyLink()) return;
     try {
       await navigator.clipboard.writeText(url);
       this.copySuccess.set(true);
@@ -176,7 +176,7 @@ export class CampaignViewComponent implements OnInit {
 
   async navigateToUpgrade(): Promise<void> {
     const c = this.campaign();
-    if (!c) return;
+    if (!c || !this.canUpgradeCampaign()) return;
 
     await this.router.navigate(['/pro/upgrade/payment'], {
       queryParams: { campaignId: c.id },

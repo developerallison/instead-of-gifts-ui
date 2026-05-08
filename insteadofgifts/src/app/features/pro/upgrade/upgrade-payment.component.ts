@@ -5,8 +5,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { isPlatformBrowser, Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 
@@ -16,19 +16,21 @@ const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
   selector: 'app-upgrade-payment',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, RouterLink],
+  imports: [ButtonComponent],
   template: `
     <div class="payment-page">
       <div class="payment-card">
-        <a
+        <button
+          type="button"
           class="payment-card__back"
-          [routerLink]="['/pro/upgrade']"
-          [queryParams]="upgradeCampaignId() ? { campaignId: upgradeCampaignId() } : null"
+          (click)="goBack()"
         >
+          <svg class="payment-card__back-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 4.158a.75.75 0 11-1.06 1.06l-5.5-5.5a.75.75 0 010-1.06l5.5-5.5a.75.75 0 111.06 1.06L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd"/>
+          </svg>
           Back
-        </a>
+        </button>
 
-        <p class="payment-card__eyebrow">Celebration Access</p>
         <h1 class="payment-card__heading">Complete your payment</h1>
         <p class="payment-card__sub">
           This is a one-time $9.99 payment to unlock Pro for one celebration.
@@ -97,18 +99,33 @@ const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
     }
     .payment-card__back {
       width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.95rem;
+      border: 1px solid #C8DAC2;
+      border-radius: 999px;
+      background: #F6FAF1;
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--color-forest, #4A7255);
-      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
     }
-    .payment-card__eyebrow {
-      font-size: 0.8125rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--color-brand-green, #95C476);
-      margin: 0;
+    .payment-card__back-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+    .payment-card__back:hover {
+      background: #eef6e5;
+      border-color: #A8C39E;
+    }
+    .payment-card__back:focus-visible {
+      outline: 2px solid var(--color-forest, #4A7255);
+      outline-offset: 3px;
+    }
+    .payment-card__back:active {
+      transform: translateY(1px);
     }
     .payment-card__heading {
       margin: 0;
@@ -178,6 +195,7 @@ export class UpgradePaymentComponent {
   private readonly supabase = inject(SupabaseService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly loading = signal(false);
@@ -186,6 +204,18 @@ export class UpgradePaymentComponent {
 
   constructor() {
     this.upgradeCampaignId.set(this.route.snapshot.queryParamMap.get('campaignId'));
+  }
+
+  async goBack(): Promise<void> {
+    if (isPlatformBrowser(this.platformId) && window.history.length > 1) {
+      this.location.back();
+      return;
+    }
+
+    const campaignId = this.upgradeCampaignId();
+    await this.router.navigate(['/pro/upgrade'], {
+      queryParams: campaignId ? { campaignId } : undefined,
+    });
   }
 
   async startStripeCheckout(): Promise<void> {
