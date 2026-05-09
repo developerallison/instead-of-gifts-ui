@@ -42,10 +42,11 @@
             </svg>
             <span>
               <strong>Stripe connected</strong>
-              — donations go directly to your account
-              <code class="connect-banner__account-id">{{ sc.accountId!.slice(-4) }}</code>
+              — donations go directly to your connected account
+              <code class="connect-banner__account-id">{{ sc.accountId }}</code>
             </span>
           </div>
+          <a class="connect-banner__link" [routerLink]="['/account']">View account details</a>
         </div>
       </div>
     }
