@@ -46,6 +46,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return respond(500, { error: 'Stripe is not configured. Set STRIPE_SECRET_KEY in Supabase secrets.' });
   }
 
+  let body: { forceNewAccount?: boolean } = {};
+  try {
+    body = await req.json();
+  } catch {
+    // Empty body is allowed.
+  }
+
   // ── Authenticate the caller ──────────────────────────────────────────────
   const jwt = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
   if (!jwt) {
@@ -74,8 +81,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
 
     let stripeAccountId: string = profile?.stripe_account_id ?? '';
+    const forceNewAccount = body.forceNewAccount === true;
 
-    if (!stripeAccountId) {
+    if (!stripeAccountId || forceNewAccount) {
       const account = await stripe.accounts.create({
         type: 'express',
         country: STRIPE_CONNECT_COUNTRY,
@@ -90,6 +98,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
           {
             id: user.id,
             stripe_account_id: stripeAccountId,
+            stripe_onboarding_complete: false,
           },
           { onConflict: 'id' },
         );
@@ -97,6 +106,19 @@ Deno.serve(async (req: Request): Promise<Response> => {
       if (updateError) {
         console.error('[stripe-connect-onboard] Profile update error:', updateError.message);
         return respond(500, { error: 'Failed to save Stripe account' });
+      }
+
+      const { error: campaignSyncError } = await supabaseAdmin
+        .from('campaigns')
+        .update({
+          stripe_account_id: stripeAccountId,
+          stripe_onboarding_complete: false,
+        })
+        .eq('created_by', user.id);
+
+      if (campaignSyncError) {
+        console.error('[stripe-connect-onboard] Campaign sync error:', campaignSyncError.message);
+        return respond(500, { error: 'Failed to sync Stripe account to celebrations' });
       }
     }
 

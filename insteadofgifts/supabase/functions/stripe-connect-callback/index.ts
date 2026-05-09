@@ -13,6 +13,16 @@
 import Stripe from 'npm:stripe@17';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
+interface StripeAccountSummary {
+  id: string;
+  email: string | null;
+  country: string | null;
+  defaultCurrency: string | null;
+  businessType: string | null;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+}
+
 // ---------------------------------------------------------------------------
 // Initialise clients once
 // ---------------------------------------------------------------------------
@@ -72,12 +82,21 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     if (!stripeAccountId) {
       // No connected account yet — onboarding hasn't started.
-      return respond(200, { complete: false });
+      return respond(200, { complete: false, account: null });
     }
 
     // ── Check onboarding status with Stripe ──────────────────────────────
     const account = await stripe.accounts.retrieve(stripeAccountId);
     const complete = account.details_submitted === true;
+    const accountSummary: StripeAccountSummary = {
+      id: account.id,
+      email: account.email ?? null,
+      country: account.country ?? null,
+      defaultCurrency: account.default_currency ?? null,
+      businessType: account.business_type ?? null,
+      chargesEnabled: account.charges_enabled === true,
+      payoutsEnabled: account.payouts_enabled === true,
+    };
 
     console.log(
       `[stripe-connect-callback] Account ${stripeAccountId} for user ${user.id}: ` +
@@ -99,11 +118,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
           stripe_account_id:          stripeAccountId,
           stripe_onboarding_complete: true,
         })
-        .eq('created_by', user.id)
-        .is('stripe_account_id', null);
+        .eq('created_by', user.id);
     }
 
-    return respond(200, { complete });
+    return respond(200, { complete, account: accountSummary });
 
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

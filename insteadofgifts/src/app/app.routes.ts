@@ -36,6 +36,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'account',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/account/account-details.component').then(
+            (m) => m.AccountDetailsComponent
+          ),
+      },
+      {
         path: 'pro',
         loadChildren: () =>
           import('./features/pro/pro.routes').then((m) => m.PRO_ROUTES),

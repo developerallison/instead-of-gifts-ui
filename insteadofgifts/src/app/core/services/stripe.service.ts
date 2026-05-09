@@ -31,6 +31,21 @@ interface CheckoutSessionResponse {
   url: string;
 }
 
+export interface StripeConnectedAccountSummary {
+  id: string;
+  email: string | null;
+  country: string | null;
+  defaultCurrency: string | null;
+  businessType: string | null;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+}
+
+export interface StripeConnectStatusResponse {
+  complete: boolean;
+  account: StripeConnectedAccountSummary | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class StripeService {
   private readonly http        = inject(HttpClient);
@@ -72,13 +87,15 @@ export class StripeService {
    * Calls the `stripe-connect-onboard` Edge Function and redirects the browser
    * to the Stripe-hosted onboarding page.
    */
-  async startConnectOnboarding(): Promise<void> {
+  async startConnectOnboarding(options?: { forceNewAccount?: boolean }): Promise<void> {
     const jwt = await this.getJwt();
     try {
       const response = await firstValueFrom(
         this.http.post<{ url: string }>(
           `${environment.apiUrl}/stripe-connect-onboard`,
-          {},
+          {
+            forceNewAccount: options?.forceNewAccount === true,
+          },
           { headers: { Authorization: `Bearer ${jwt}`, apikey: environment.supabase.anonKey } },
         )
       );
@@ -92,11 +109,11 @@ export class StripeService {
    * Checks whether the organiser has completed Stripe Connect onboarding.
    * Calls the `stripe-connect-callback` Edge Function and returns the result.
    */
-  async checkConnectStatus(): Promise<{ complete: boolean }> {
+  async checkConnectStatus(): Promise<StripeConnectStatusResponse> {
     const jwt = await this.getJwt();
     try {
       return await firstValueFrom(
-        this.http.post<{ complete: boolean }>(
+        this.http.post<StripeConnectStatusResponse>(
           `${environment.apiUrl}/stripe-connect-callback`,
           {},
           { headers: { Authorization: `Bearer ${jwt}`, 'apikey': environment.supabase.anonKey } },

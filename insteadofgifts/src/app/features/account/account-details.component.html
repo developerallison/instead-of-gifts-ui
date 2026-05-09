@@ -1,0 +1,126 @@
+<div class="account-page">
+  <div class="account-page__inner">
+    <a routerLink="/dashboard" class="account-page__back">← Back to dashboard</a>
+
+    <section class="account-hero">
+      <div>
+        <p class="account-hero__eyebrow">Account</p>
+        <h1 class="account-hero__title">Account details</h1>
+        <p class="account-hero__body">
+          Review your login details and manage the Stripe account that receives donations.
+        </p>
+      </div>
+    </section>
+
+    <div class="account-grid">
+      <section class="account-card">
+        <div class="account-card__header">
+          <div>
+            <p class="account-card__eyebrow">Profile</p>
+            <h2 class="account-card__title">Sign-in details</h2>
+          </div>
+        </div>
+
+        <dl class="account-list">
+          <div class="account-list__row">
+            <dt>Name</dt>
+            <dd>{{ displayName() }}</dd>
+          </div>
+          <div class="account-list__row">
+            <dt>Email</dt>
+            <dd>{{ user()?.email ?? 'Not available' }}</dd>
+          </div>
+          <div class="account-list__row">
+            <dt>User ID</dt>
+            <dd><code>{{ user()?.id }}</code></dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="account-card">
+        <div class="account-card__header">
+          <div>
+            <p class="account-card__eyebrow">Stripe</p>
+            <h2 class="account-card__title">Donation payout account</h2>
+          </div>
+
+          <app-button variant="ghost" size="sm" type="button" [disabled]="stripeLoading() || stripeBusy()" (clicked)="refreshStripeStatus()">
+            Refresh
+          </app-button>
+        </div>
+
+        @if (stripeLoading()) {
+          <p class="account-card__empty">Loading Stripe account details…</p>
+        } @else if (stripeError()) {
+          <div class="account-card__error" role="alert">{{ stripeError() }}</div>
+        } @else if (!stripeAccount()) {
+          <p class="account-card__empty">
+            No Stripe account is connected yet. Connect Stripe to receive donations directly into your bank account.
+          </p>
+
+          <div class="account-card__actions">
+            <app-button variant="primary" size="md" type="button" [loading]="stripeBusy()" (clicked)="onConnectStripe()">
+              Connect Stripe
+            </app-button>
+          </div>
+        } @else {
+          <div class="account-status" [class.account-status--warning]="!stripeOnboardingComplete()">
+            <strong>
+              {{ stripeOnboardingComplete() ? 'Connected and ready' : 'Setup not finished' }}
+            </strong>
+            <span>
+              @if (stripeOnboardingComplete()) {
+                Donations will be routed to this Stripe account.
+              } @else {
+                Complete Stripe setup before this account can receive donations.
+              }
+            </span>
+          </div>
+
+          <dl class="account-list">
+            <div class="account-list__row">
+              <dt>Stripe account ID</dt>
+              <dd><code>{{ stripeAccount()?.id }}</code></dd>
+            </div>
+            <div class="account-list__row">
+              <dt>Payout email</dt>
+              <dd>{{ stripeAccount()?.email ?? 'Not provided' }}</dd>
+            </div>
+            <div class="account-list__row">
+              <dt>Country</dt>
+              <dd>{{ formatCountry(stripeAccount()?.country ?? null) }}</dd>
+            </div>
+            <div class="account-list__row">
+              <dt>Currency</dt>
+              <dd>{{ formatCurrency(stripeAccount()?.defaultCurrency ?? null) }}</dd>
+            </div>
+            <div class="account-list__row">
+              <dt>Charges enabled</dt>
+              <dd>{{ stripeAccount()?.chargesEnabled ? 'Yes' : 'No' }}</dd>
+            </div>
+            <div class="account-list__row">
+              <dt>Payouts enabled</dt>
+              <dd>{{ stripeAccount()?.payoutsEnabled ? 'Yes' : 'No' }}</dd>
+            </div>
+          </dl>
+
+          <div class="account-card__actions">
+            @if (!stripeOnboardingComplete()) {
+              <app-button variant="primary" size="md" type="button" [loading]="stripeBusy()" (clicked)="onConnectStripe()">
+                Complete setup
+              </app-button>
+            } @else {
+              <app-button variant="secondary" size="md" type="button" [loading]="stripeBusy()" (clicked)="onChangeStripeAccount()">
+                Connect different account
+              </app-button>
+            }
+          </div>
+
+          <p class="account-card__note">
+            Changing the connected Stripe account affects future donations after the new account setup is completed.
+          </p>
+        }
+      </section>
+    </div>
+  </div>
+</div>
