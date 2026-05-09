@@ -52,7 +52,7 @@
     }
   }
 
-  @if (campaignCredits() === 0 && !hasProCampaign()) {
+  <!-- @if (campaignCredits() === 0 && !hasProCampaign()) {
     <div class="upgrade-banner" role="banner" aria-label="Upgrade to Pro">
       <div class="upgrade-banner__inner">
         <div class="upgrade-banner__text">
@@ -64,7 +64,7 @@
         <a class="upgrade-banner__cta" [routerLink]="['/pro', 'upgrade']">Pay $9.99</a>
       </div>
     </div>
-  }
+  } -->
 
   <div class="dashboard-page__inner dashboard-page__inner--content">
     @if (loading()) {
