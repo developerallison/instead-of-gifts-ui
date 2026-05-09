@@ -6,6 +6,7 @@ const PAYPAL_BASE_URL_OVERRIDE = Deno.env.get('PAYPAL_BASE_URL')?.replace(/\/$/,
 const PAYPAL_ENVIRONMENT = Deno.env.get('PAYPAL_ENVIRONMENT')?.trim().toLowerCase() ?? null;
 const PAYPAL_SANDBOX_BASE_URL = 'https://api-m.sandbox.paypal.com';
 const PAYPAL_LIVE_BASE_URL = 'https://api-m.paypal.com';
+const CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS = 15;
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -70,7 +71,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const { data: campaign, error: campaignError } = await supabase
     .from('campaigns')
-    .select('id, title, is_active')
+    .select('id, title, is_active, deadline')
     .eq('id', campaignId)
     .single();
 
@@ -78,7 +79,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return respond(404, { error: 'Campaign not found' });
   }
 
-  if (!campaign.is_active) {
+  if (!campaign.is_active || hasCampaignContributionWindowClosed(campaign.deadline)) {
     return respond(400, { error: 'Campaign is no longer accepting contributions' });
   }
 
@@ -265,4 +266,44 @@ function respond(
       ...(cors ? corsHeaders() : {}),
     },
   });
+}
+
+function hasCampaignContributionWindowClosed(deadline: string | null): boolean {
+  if (!deadline) {
+    return false;
+  }
+
+  const closesAt = getCampaignContributionWindowCloseAt(deadline);
+  if (!closesAt) {
+    return false;
+  }
+
+  return Date.now() > closesAt.getTime();
+}
+
+function getCampaignContributionWindowCloseAt(deadline: string): Date | null {
+  const gracePeriodMs = CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000;
+  const dateOnlyMatch = deadline.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+    const deadlineEnd = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    return new Date(deadlineEnd.getTime() + gracePeriodMs);
+  }
+
+  const parsedDeadline = new Date(deadline);
+  if (Number.isNaN(parsedDeadline.getTime())) {
+    return null;
+  }
+
+  return new Date(parsedDeadline.getTime() + gracePeriodMs);
 }

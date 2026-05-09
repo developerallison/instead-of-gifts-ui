@@ -57,7 +57,7 @@
         <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-.75-9.25a.75.75 0 011.5 0v3a.75.75 0 01-1.5 0v-3zm.75 5.5a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
         </svg>
-        This celebration has ended. Thank you to everyone who contributed!
+        This celebration has ended. Contributions closed after the {{ contributionGracePeriodDays }}-day grace period. Thank you to everyone who contributed!
       </div>
     }
 
@@ -117,6 +117,14 @@
                     <path fill-rule="evenodd" d="M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75z" clip-rule="evenodd"/>
                   </svg>
                   Ends {{ c.endsAt | date:'d MMM y' }}
+                </span>
+              }
+              @if (contributionWindowClosesAt(c); as closesAt) {
+                <span class="meta-item">
+                  <svg class="w-4 h-4 text-text-muted" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1.5-11.25a1.5 1.5 0 10-3 0v3.19c0 .35.139.686.386.934l1.75 1.75a.75.75 0 101.06-1.06l-1.53-1.53V6.75a.75.75 0 01.75-.75.75.75 0 000-1.5z" clip-rule="evenodd"/>
+                  </svg>
+                  Contributions close {{ closesAt | date:'d MMM y' }}
                 </span>
               }
             </div>

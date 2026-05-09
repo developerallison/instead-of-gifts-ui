@@ -6,6 +6,7 @@ import { appendRandomSuffix, generateSlug } from '../utils/slug.util';
 
 const MAX_SLUG_RETRIES = 5;
 const CELEBRATION_CREATED_NOTIFICATION_FN = 'send-celebration-created-email';
+export const CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS = 15;
 
 export interface UpdateCampaignInput {
   title: string;
@@ -314,7 +315,7 @@ export class CampaignService {
 
   private toModel(row: CampaignRow, amountCollectedPence: number): Campaign {
     let status: CampaignStatus = 'active';
-    if (!row.is_active || hasCampaignDeadlinePassed(row.deadline)) {
+    if (!row.is_active || hasCampaignContributionWindowClosed(row.deadline)) {
       status = 'closed';
     } else {
       const ageMs = Date.now() - new Date(row.created_at).getTime();
@@ -344,10 +345,25 @@ export class CampaignService {
   }
 }
 
-function hasCampaignDeadlinePassed(deadline: string | null): boolean {
+function hasCampaignContributionWindowClosed(deadline: string | null): boolean {
   if (!deadline) {
     return false;
   }
+
+  const closesAt = getCampaignContributionWindowCloseAt(deadline);
+  if (!closesAt) {
+    return false;
+  }
+
+  return Date.now() > closesAt.getTime();
+}
+
+export function getCampaignContributionWindowCloseAt(deadline: string | null): Date | null {
+  if (!deadline) {
+    return null;
+  }
+
+  const gracePeriodMs = CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000;
 
   const dateOnlyMatch = deadline.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (dateOnlyMatch) {
@@ -361,13 +377,13 @@ function hasCampaignDeadlinePassed(deadline: string | null): boolean {
       59,
       999,
     );
-    return Date.now() > deadlineEnd.getTime();
+    return new Date(deadlineEnd.getTime() + gracePeriodMs);
   }
 
   const parsedDeadline = new Date(deadline);
   if (Number.isNaN(parsedDeadline.getTime())) {
-    return false;
+    return null;
   }
 
-  return Date.now() > parsedDeadline.getTime();
+  return new Date(parsedDeadline.getTime() + gracePeriodMs);
 }

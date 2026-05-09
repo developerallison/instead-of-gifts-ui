@@ -10,7 +10,11 @@ import {
 import { isPlatformBrowser, DatePipe, NgOptimizedImage } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { CampaignService } from '../../../core/services/campaign.service';
+import {
+  CampaignService,
+  CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS,
+  getCampaignContributionWindowCloseAt,
+} from '../../../core/services/campaign.service';
 import { AuthService } from '../../../core/services/auth.service';
 import {
   SupabaseService,
@@ -43,6 +47,7 @@ export class CampaignViewComponent implements OnInit {
   private readonly authSvc      = inject(AuthService);
   private readonly supabaseSvc  = inject(SupabaseService);
   private readonly platformId   = inject(PLATFORM_ID);
+  readonly contributionGracePeriodDays = CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS;
 
   // ── State signals ──────────────────────────────────────────────────────────
   readonly campaign       = signal<Campaign | null>(null);
@@ -198,6 +203,10 @@ export class CampaignViewComponent implements OnInit {
     } catch {
       return `${currency} ${major.toFixed(2)}`;
     }
+  }
+
+  contributionWindowClosesAt(campaign: Campaign): Date | null {
+    return getCampaignContributionWindowCloseAt(campaign.endsAt ?? null);
   }
 
 }

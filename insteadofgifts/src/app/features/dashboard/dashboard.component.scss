@@ -309,6 +309,11 @@
   gap: 0.65rem;
 }
 
+.milestone-card--ended {
+  background: #fbfcfb;
+  border-color: #dfe5e0;
+}
+
 .milestone-card__hero {
   position: relative;
   height: 88px;
@@ -328,6 +333,20 @@
   display: inline-flex;
   gap: 0.35rem;
   z-index: 2;
+}
+
+.milestone-card__status-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 1.7rem;
+  padding: 0 0.72rem;
+  border-radius: 9999px;
+  background: rgba(37, 50, 42, 0.82);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .milestone-card__top-icon {
@@ -427,6 +446,19 @@
   }
 }
 
+.milestone-card--ended .milestone-card__title,
+.milestone-card--ended .milestone-card__amount-value {
+  color: #4f5f54;
+}
+
+.milestone-card--ended .milestone-card__amount-label,
+.milestone-card--ended .milestone-card__slug,
+.milestone-card--ended .milestone-card__slug-host,
+.milestone-card--ended .milestone-card__slug-path,
+.milestone-card--ended .milestone-card__deadline {
+  color: #7b887f;
+}
+
 .milestone-card__title-wrap {
   margin: 0;
 }
@@ -483,6 +515,13 @@
   color: #627369;
 }
 
+.milestone-card__deadline {
+  margin-top: 0.38rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #55655a;
+}
+
 .milestone-card__content-row {
   display: flex;
   flex-direction: column;
@@ -501,6 +540,10 @@
   border-radius: 12px;
   background: #f9fbf9;
   padding: 0.45rem;
+}
+
+.milestone-card--ended .milestone-card__qr {
+  opacity: 0.55;
 }
 
 .milestone-card__actions {

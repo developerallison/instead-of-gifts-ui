@@ -7,10 +7,14 @@ import {
   ChangeDetectionStrategy,
   PLATFORM_ID,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { CampaignService } from '../../core/services/campaign.service';
+import {
+  CampaignService,
+  CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS,
+  getCampaignContributionWindowCloseAt,
+} from '../../core/services/campaign.service';
 import {
   SupabaseService,
   CampaignTotals,
@@ -56,7 +60,7 @@ const PENDING_PRO_UPGRADE_CAMPAIGN_KEY = 'pendingProUpgradeCampaignId';
   selector: 'app-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ButtonComponent, SkeletonLoaderComponent, QrCodeComponent],
+  imports: [RouterLink, ButtonComponent, SkeletonLoaderComponent, QrCodeComponent, DatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -76,6 +80,7 @@ export class DashboardComponent implements OnInit {
   readonly connectLoading = signal(false);
   readonly recentActivity = signal<DashboardActivity[]>([]);
   readonly baseHost = signal('insteadofgifts.com');
+  readonly contributionGracePeriodDays = CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS;
 
   /** Stripe Connect status — null while loading. */
   readonly stripeConnect = signal<StripeConnectStatus | null>(null);
@@ -225,7 +230,7 @@ export class DashboardComponent implements OnInit {
   // ── Actions ────────────────────────────────────────────────────────────────
 
   async onCopyLink(campaign: Campaign): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.isCampaignEnded(campaign) || !isPlatformBrowser(this.platformId)) return;
 
     const url = `${window.location.origin}/celebrations/${campaign.slug}`;
     try {
@@ -244,18 +249,18 @@ export class DashboardComponent implements OnInit {
     setTimeout(() => this.updateRow(campaign.id, { copySuccess: false }), 2500);
   }
 
-  downloadQrForCampaign(slug: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const canvas = document.querySelector<HTMLCanvasElement>(`#qr-${slug} canvas`);
+  downloadQrForCampaign(campaign: Campaign): void {
+    if (this.isCampaignEnded(campaign) || !isPlatformBrowser(this.platformId)) return;
+    const canvas = document.querySelector<HTMLCanvasElement>(`#qr-${campaign.slug} canvas`);
     if (!canvas) return;
     const link = document.createElement('a');
-    link.download = `${slug}.png`;
+    link.download = `${campaign.slug}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
   }
 
   async onShare(campaign: Campaign): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.isCampaignEnded(campaign) || !isPlatformBrowser(this.platformId)) return;
 
     const url = `${window.location.origin}/celebrations/${campaign.slug}`;
     const shareData: ShareData = {
@@ -310,6 +315,7 @@ export class DashboardComponent implements OnInit {
   }
 
   async onCloseCampaign(campaign: Campaign): Promise<void> {
+    if (this.isCampaignEnded(campaign)) return;
     this.updateRow(campaign.id, { closing: true });
     try {
       await this.campaignSvc.closeCampaign(campaign.id);
@@ -331,7 +337,7 @@ export class DashboardComponent implements OnInit {
   }
 
   async onDeleteCampaign(campaign: Campaign): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.isCampaignEnded(campaign) || !isPlatformBrowser(this.platformId)) return;
 
     const confirmed = window.confirm(
       `Delete celebration "${campaign.title}" permanently? This cannot be undone.`
@@ -352,6 +358,7 @@ export class DashboardComponent implements OnInit {
   }
 
   async onUpgradeCampaign(campaign: Campaign): Promise<void> {
+    if (this.isCampaignEnded(campaign)) return;
     if (!this.campaignCredits()) {
       await this.router.navigate(['/pro/upgrade/payment'], {
         queryParams: { campaignId: campaign.id },
@@ -431,6 +438,14 @@ export class DashboardComponent implements OnInit {
     if (hours < 24) return `${hours}h`;
     const days = Math.floor(hours / 24);
     return `${days}d`;
+  }
+
+  isCampaignEnded(campaign: Campaign): boolean {
+    return campaign.status === 'closed';
+  }
+
+  contributionWindowClosesAt(campaign: Campaign): Date | null {
+    return getCampaignContributionWindowCloseAt(campaign.endsAt ?? null);
   }
 
   private updateRow(id: string, patch: Partial<DashboardRow>): void {

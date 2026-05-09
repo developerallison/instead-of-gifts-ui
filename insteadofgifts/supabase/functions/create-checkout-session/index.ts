@@ -32,6 +32,7 @@ const stripe = new Stripe(stripeSecretKey, {
   httpClient: Stripe.createFetchHttpClient(),
   apiVersion: '2025-03-31.basil',
 });
+const CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS = 15;
 
 /** Anon client — only used to read public campaign data. */
 const supabase = createClient(
@@ -103,7 +104,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // ── Validate campaign ──────────────────────────────────────────────────────
   const { data: campaign, error: campaignError } = await supabase
     .from('campaigns')
-    .select('id, title, is_active, created_by')
+    .select('id, title, is_active, created_by, deadline')
     .eq('id', campaignId)
     .single();
 
@@ -112,7 +113,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return respond(404, { error: 'Campaign not found' });
   }
 
-  if (!campaign.is_active) {
+  if (!campaign.is_active || hasCampaignContributionWindowClosed(campaign.deadline)) {
     return respond(400, { error: 'Campaign is no longer accepting contributions' });
   }
 
@@ -221,4 +222,44 @@ function respond(
       ...(cors ? corsHeaders() : {}),
     },
   });
+}
+
+function hasCampaignContributionWindowClosed(deadline: string | null): boolean {
+  if (!deadline) {
+    return false;
+  }
+
+  const closesAt = getCampaignContributionWindowCloseAt(deadline);
+  if (!closesAt) {
+    return false;
+  }
+
+  return Date.now() > closesAt.getTime();
+}
+
+function getCampaignContributionWindowCloseAt(deadline: string): Date | null {
+  const gracePeriodMs = CAMPAIGN_CONTRIBUTION_GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000;
+  const dateOnlyMatch = deadline.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+    const deadlineEnd = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    return new Date(deadlineEnd.getTime() + gracePeriodMs);
+  }
+
+  const parsedDeadline = new Date(deadline);
+  if (Number.isNaN(parsedDeadline.getTime())) {
+    return null;
+  }
+
+  return new Date(parsedDeadline.getTime() + gracePeriodMs);
 }
