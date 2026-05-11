@@ -88,6 +88,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
         type: 'express',
         country: STRIPE_CONNECT_COUNTRY,
         email: user.email ?? undefined,
+        business_type: 'individual',
+        business_profile: {
+          product_description: 'Personal celebration contributions received through InsteadOfGifts.',
+        },
         metadata: { supabase_user_id: user.id },
       });
       stripeAccountId = account.id;

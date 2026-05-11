@@ -83,7 +83,7 @@ export class AccountDetailsComponent implements OnInit {
   async onChangeStripeAccount(): Promise<void> {
     if (typeof window !== 'undefined') {
       const confirmed = window.confirm(
-        'Connect a different Stripe account? Future donations will use the new account after setup is completed.',
+        'Connect a different payout account? Future celebration contributions will use the new account after setup is completed.',
       );
       if (!confirmed) return;
     }
@@ -108,6 +108,15 @@ export class AccountDetailsComponent implements OnInit {
 
   formatCurrency(code: string | null): string {
     return code ? code.toUpperCase() : 'Not provided';
+  }
+
+  formatBusinessType(type: string | null): string {
+    if (!type) return 'Not provided';
+
+    return type
+      .split('_')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
   }
 
   private async loadStripeAccount(): Promise<void> {

@@ -1,6 +1,6 @@
 <div class="dashboard-page">
 
-  <!-- ── Stripe Connect section ──────────────────────────────────────────── -->
+  <!-- Stripe Connect section -->
   @if (stripeConnect(); as sc) {
     @if (!sc.accountId) {
       <!-- Not connected -->
@@ -10,10 +10,10 @@
             <svg class="connect-banner__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path d="M2.5 4A1.5 1.5 0 001 5.5V6h18v-.5A1.5 1.5 0 0017.5 4h-15zM19 8.5H1v6A1.5 1.5 0 002.5 16h15a1.5 1.5 0 001.5-1.5v-6zM3 13.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm4.75-.75a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z"/>
             </svg>
-            <span><strong>Connect your Stripe account</strong> to receive donations directly into your bank.</span>
+            <span><strong>Connect your payout account</strong> to receive celebration contributions directly into your bank.</span>
           </div>
           <app-button variant="primary" size="sm" type="button" [loading]="connectLoading()" (clicked)="onConnectStripe()">
-            Connect Stripe
+            Connect payout account
           </app-button>
         </div>
       </div>
@@ -25,10 +25,10 @@
             <svg class="connect-banner__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
             </svg>
-            <span><strong>Complete your Stripe setup</strong> to start receiving donations directly.</span>
+            <span><strong>Complete your payout setup</strong> to start receiving celebration contributions directly.</span>
           </div>
           <app-button variant="secondary" size="sm" type="button" [loading]="connectLoading()" (clicked)="onConnectStripe()">
-            Complete setup
+            Complete payout setup
           </app-button>
         </div>
       </div>
@@ -42,7 +42,7 @@
             </svg>
             <span>
               <strong>Stripe connected</strong>
-              — donations go directly to your connected account
+              - celebration contributions go directly to your connected payout account
               <code class="connect-banner__account-id">{{ sc.accountId }}</code>
             </span>
           </div>
@@ -68,7 +68,7 @@
 
   <div class="dashboard-page__inner dashboard-page__inner--content">
     @if (loading()) {
-      <p class="sr-only" role="status">Loading your dashboard…</p>
+      <p class="sr-only" role="status">Loading your dashboard...</p>
       <app-skeleton-loader [count]="3" />
     }
 

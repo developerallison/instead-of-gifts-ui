@@ -7,7 +7,7 @@
         <p class="account-hero__eyebrow">Account</p>
         <h1 class="account-hero__title">Account details</h1>
         <p class="account-hero__body">
-          Review your login details and manage the Stripe account that receives donations.
+          Review your login details and manage the payout account that receives celebration contributions. Pro upgrade payments are processed separately by InsteadOfGifts.
         </p>
       </div>
     </section>
@@ -41,7 +41,7 @@
         <div class="account-card__header">
           <div>
             <p class="account-card__eyebrow">Stripe</p>
-            <h2 class="account-card__title">Donation payout account</h2>
+            <h2 class="account-card__title">Contribution payout account</h2>
           </div>
 
           <app-button variant="ghost" size="sm" type="button" [disabled]="stripeLoading() || stripeBusy()" (clicked)="refreshStripeStatus()">
@@ -55,14 +55,17 @@
           <div class="account-card__error" role="alert">{{ stripeError() }}</div>
         } @else if (!stripeAccount()) {
           <p class="account-card__empty">
-            No Stripe account is connected yet. Connect Stripe to receive donations directly into your bank account.
+            No payout account is connected yet. Connect Stripe so celebration contributions can go directly to your bank account.
           </p>
 
           <div class="account-card__actions">
             <app-button variant="primary" size="md" type="button" [loading]="stripeBusy()" (clicked)="onConnectStripe()">
-              Connect Stripe
+              Connect payout account
             </app-button>
           </div>
+          <p class="account-card__note">
+            Most creators should choose <strong>Individual</strong> during Stripe setup. Use a company or LLC only when payouts should go to a registered business.
+          </p>
         } @else {
           <div class="account-status" [class.account-status--warning]="!stripeOnboardingComplete()">
             <strong>
@@ -70,9 +73,9 @@
             </strong>
             <span>
               @if (stripeOnboardingComplete()) {
-                Donations will be routed to this Stripe account.
+                Celebration contributions will be routed to this payout account.
               } @else {
-                Complete Stripe setup before this account can receive donations.
+                Complete Stripe setup before this account can receive celebration contributions.
               }
             </span>
           </div>
@@ -91,6 +94,10 @@
               <dd>{{ formatCountry(stripeAccount()?.country ?? null) }}</dd>
             </div>
             <div class="account-list__row">
+              <dt>Account type</dt>
+              <dd>{{ formatBusinessType(stripeAccount()?.businessType ?? null) }}</dd>
+            </div>
+            <div class="account-list__row">
               <dt>Currency</dt>
               <dd>{{ formatCurrency(stripeAccount()?.defaultCurrency ?? null) }}</dd>
             </div>
@@ -107,17 +114,21 @@
           <div class="account-card__actions">
             @if (!stripeOnboardingComplete()) {
               <app-button variant="primary" size="md" type="button" [loading]="stripeBusy()" (clicked)="onConnectStripe()">
-                Complete setup
+                Complete payout setup
               </app-button>
             } @else {
               <app-button variant="secondary" size="md" type="button" [loading]="stripeBusy()" (clicked)="onChangeStripeAccount()">
-                Connect different account
+                Connect different payout account
               </app-button>
             }
           </div>
 
           <p class="account-card__note">
-            Changing the connected Stripe account affects future donations after the new account setup is completed.
+            This payout account is only for celebration contributions. Pro upgrade payments go to the InsteadOfGifts business account.
+          </p>
+
+          <p class="account-card__note">
+            Changing the connected Stripe account affects future celebration contributions after the new account setup is completed.
           </p>
         }
       </section>
