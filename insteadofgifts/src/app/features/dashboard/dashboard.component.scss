@@ -168,6 +168,19 @@
   strong { font-weight: 700; }
 }
 
+.connect-banner__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.connect-banner__subtext {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  opacity: 0.9;
+}
+
 .connect-banner__icon {
   width: 1rem;
   height: 1rem;

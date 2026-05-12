@@ -71,6 +71,7 @@ export class ContributeComponent implements OnInit {
   readonly paying = signal(false);
   readonly payError = signal<string | null>(null);
   readonly wasCancelled = signal(false);
+  readonly donationsEnabled = computed(() => this.campaign()?.stripeOnboardingComplete === true);
 
   readonly form: FormGroup<ContributeForm> = this.fb.group({
     name: this.fb.nonNullable.control(''),
@@ -146,6 +147,13 @@ export class ContributeComponent implements OnInit {
 
     const campaign = this.campaign();
     if (!campaign) {
+      return;
+    }
+
+    if (!this.donationsEnabled()) {
+      this.payError.set(
+        'Donations are currently disabled until the organiser connects Stripe and adds bank account details.',
+      );
       return;
     }
 

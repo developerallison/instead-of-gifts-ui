@@ -59,6 +59,9 @@ export class CampaignViewComponent implements OnInit {
   readonly showThankYou   = signal(false);
   readonly isLoggedIn     = computed(() => this.authSvc.user() !== null);
   readonly isClosed = computed(() => this.campaign()?.status === 'closed');
+  readonly donationsEnabled = computed(() =>
+    !this.isClosed() && this.campaign()?.stripeOnboardingComplete === true
+  );
   readonly canUpgradeCampaign = computed(() => {
     const user = this.authSvc.user();
     const campaign = this.campaign();

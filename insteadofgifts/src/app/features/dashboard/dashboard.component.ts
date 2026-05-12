@@ -21,7 +21,10 @@ import {
   ContributionDisplay,
 } from '../../core/services/supabase.service';
 import { ProService } from '../../core/services/pro.service';
-import { StripeService } from '../../core/services/stripe.service';
+import {
+  StripeConnectStatusResponse,
+  StripeService,
+} from '../../core/services/stripe.service';
 import { Campaign } from '../../core/models/campaign.model';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
@@ -48,7 +51,7 @@ interface DashboardActivity {
   createdAt: string;
 }
 
-/** Stripe Connect status for the currently signed-in organiser. */
+/** Stripe payout readiness for the currently signed-in organiser. */
 interface StripeConnectStatus {
   accountId: string | null;
   onboardingComplete: boolean;
@@ -85,6 +88,7 @@ export class DashboardComponent implements OnInit {
   /** Stripe Connect status — null while loading. */
   readonly stripeConnect = signal<StripeConnectStatus | null>(null);
   readonly campaignCredits = this.proSvc.campaignCredits;
+  readonly donationsEnabled = computed(() => this.stripeConnect()?.onboardingComplete === true);
   readonly greetingName = computed(() => {
     const name = this.rows()[0]?.campaign.organiserName?.trim();
     if (!name) return 'there';
@@ -130,7 +134,7 @@ export class DashboardComponent implements OnInit {
     try {
       const [campaigns, connectStatus] = await Promise.all([
         this.campaignSvc.getOwnCampaigns(),
-        this.loadStripeConnectStatus(connectParam === 'success'),
+        this.loadStripeConnectStatus(),
       ]);
       await this.proSvc.loadProfile();
       const upgradedCampaignId = await this.consumePendingPaidUpgrade(campaigns);
@@ -197,30 +201,26 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
-   * Reads the organiser's Stripe Connect status from user_profiles.
-   * When `verifyWithStripe` is true the Edge Function is called first so
-   * Stripe's latest `details_submitted` value is persisted before we read.
+   * Reads the organiser's Stripe Connect status from Stripe first when possible
+   * and falls back to the cached profile value when that request fails.
    */
-  private async loadStripeConnectStatus(
-    verifyWithStripe: boolean,
-  ): Promise<StripeConnectStatus> {
+  private async loadStripeConnectStatus(): Promise<StripeConnectStatus> {
     try {
-      if (verifyWithStripe) {
-        await this.stripeSvc.checkConnectStatus();
-      }
-
       const { data: { user } } = await this.supabaseSvc.client.auth.getUser();
       if (!user) return { accountId: null, onboardingComplete: false };
 
-      const { data: profile } = await this.supabaseSvc.client
-        .from('user_profiles')
-        .select('stripe_account_id, stripe_onboarding_complete')
-        .eq('id', user.id)
-        .maybeSingle();
+      const [{ data: profile }, status] = await Promise.all([
+        this.supabaseSvc.client
+          .from('user_profiles')
+          .select('stripe_account_id, stripe_onboarding_complete')
+          .eq('id', user.id)
+          .maybeSingle(),
+        this.stripeSvc.checkConnectStatus().catch(() => null as StripeConnectStatusResponse | null),
+      ]);
 
       return {
-        accountId:          profile?.stripe_account_id          ?? null,
-        onboardingComplete: profile?.stripe_onboarding_complete ?? false,
+        accountId: status?.account?.id ?? profile?.stripe_account_id ?? null,
+        onboardingComplete: status?.complete ?? profile?.stripe_onboarding_complete ?? false,
       };
     } catch {
       return { accountId: null, onboardingComplete: false };

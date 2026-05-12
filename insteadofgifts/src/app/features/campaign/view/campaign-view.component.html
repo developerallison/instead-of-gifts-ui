@@ -1,14 +1,12 @@
-<!-- ── Loading ─────────────────────────────────────────────────────────────── -->
 @if (loading()) {
-  <div class="page-loader" aria-label="Loading celebration…">
+  <div class="page-loader" aria-label="Loading celebration">
     <svg class="animate-spin w-9 h-9 text-brand-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-      <path  class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
     </svg>
   </div>
 }
 
-<!-- ── Error ───────────────────────────────────────────────────────────────── -->
 @if (error()) {
   <div class="page-error" role="alert">
     <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -18,11 +16,8 @@
   </div>
 }
 
-<!-- ── Campaign page ───────────────────────────────────────────────────────── -->
 @if (liveCampaign(); as c) {
   <div class="campaign-page">
-
-    <!-- ══ THANK-YOU POPUP ═════════════════════════════════════════════════ -->
     @if (showThankYou()) {
       <div class="thank-you-modal" role="dialog" aria-modal="true" aria-label="Contribution successful">
         <div class="thank-you-modal__card">
@@ -51,7 +46,6 @@
       </div>
     }
 
-    <!-- ══ CLOSED BANNER ═══════════════════════════════════════════════════ -->
     @if (isClosed()) {
       <div class="closed-banner" role="status">
         <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -62,48 +56,45 @@
     }
 
     <div class="campaign-page__inner">
-
       <div class="campaign-layout">
         <section class="campaign-main">
-          <!-- ══ TITLE + MESSAGING ══════════════════════════════════════════════ -->
           <div class="campaign-header">
             <h1 class="campaign-title">{{ c.title }}</h1>
 
-        @if (c.isPro && c.customMessage) {
-          <!-- Pro: organiser's personal message -->
-          <div class="custom-message">
-            <div class="custom-message__icon" aria-hidden="true">
-              <svg class="w-4 h-4 text-pro" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 1l2.163 4.279L15 6.09l-3.5 3.326.826 4.693L8 11.75l-4.326 2.359.826-4.693L1 6.09l4.837-.811L8 1z"/>
-              </svg>
-            </div>
-            <blockquote class="custom-message__text">{{ c.customMessage }}</blockquote>
-          </div>
-        } @else if (!c.isPro && c.fundUse) {
-          <!-- Free: preset copy by fund-use choice -->
-          <div class="custom-message custom-message--fund-use">
-            <blockquote class="custom-message__text">{{ fundUseDefaultMessage(c.fundUse) }}</blockquote>
-          </div>
-        }
-        @if (c.description) {
-          <p class="campaign-description">{{ c.description }}</p>
-        }
-        @if (canUpgradeCampaign()) {
-          <div class="campaign-upgrade-cta">
-            <p class="campaign-upgrade-cta__text">
-              To change this description - 
-              <a
-                class="campaign-upgrade-cta__link"
-                [routerLink]="['/pro/upgrade/payment']"
-                [queryParams]="{ campaignId: c.id }"
-              >
-                Upgrade to Pro
-              </a>
-            </p>
-          </div>
-        }
+            @if (c.isPro && c.customMessage) {
+              <div class="custom-message">
+                <div class="custom-message__icon" aria-hidden="true">
+                  <svg class="w-4 h-4 text-pro" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 1l2.163 4.279L15 6.09l-3.5 3.326.826 4.693L8 11.75l-4.326 2.359.826-4.693L1 6.09l4.837-.811L8 1z"/>
+                  </svg>
+                </div>
+                <blockquote class="custom-message__text">{{ c.customMessage }}</blockquote>
+              </div>
+            } @else if (!c.isPro && c.fundUse) {
+              <div class="custom-message custom-message--fund-use">
+                <blockquote class="custom-message__text">{{ fundUseDefaultMessage(c.fundUse) }}</blockquote>
+              </div>
+            }
 
-            <!-- Organiser + deadline meta -->
+            @if (c.description) {
+              <p class="campaign-description">{{ c.description }}</p>
+            }
+
+            @if (canUpgradeCampaign()) {
+              <div class="campaign-upgrade-cta">
+                <p class="campaign-upgrade-cta__text">
+                  To change this description -
+                  <a
+                    class="campaign-upgrade-cta__link"
+                    [routerLink]="['/pro/upgrade/payment']"
+                    [queryParams]="{ campaignId: c.id }"
+                  >
+                    Upgrade to Pro
+                  </a>
+                </p>
+              </div>
+            }
+
             <div class="campaign-meta">
               <span class="meta-item">
                 <svg class="w-4 h-4 text-text-muted" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -130,7 +121,6 @@
             </div>
           </div>
 
-          <!-- ══ COVER IMAGE ════════════════════════════════════════════════════ -->
           @if (c.isPro && c.coverImageUrl) {
             <div class="cover-wrap">
               <img
@@ -173,7 +163,6 @@
             }
           }
 
-          <!-- ══ RECENT CONTRIBUTIONS ═══════════════════════════════════════════ -->
           @if (contributions().length > 0) {
             <div class="contributions-section">
               <h3 class="contributions-section__title">Recent contributions</h3>
@@ -181,13 +170,10 @@
               <ul class="contributions-list" role="list">
                 @for (contrib of contributions(); track contrib.id) {
                   <li class="contribution-item">
-
-                    <!-- Avatar -->
                     <div class="contribution-item__avatar" aria-hidden="true">
                       {{ (contrib.contributorName ?? 'Anonymous').charAt(0).toUpperCase() }}
                     </div>
 
-                    <!-- Details -->
                     <div class="contribution-item__body">
                       <div class="contribution-item__header">
                         <span class="contribution-item__name">
@@ -205,7 +191,6 @@
                         [attr.datetime]="contrib.createdAt"
                       >{{ contrib.createdAt | date:'d MMM y, HH:mm' }}</time>
                     </div>
-
                   </li>
                 }
               </ul>
@@ -214,7 +199,6 @@
         </section>
 
         <aside class="campaign-side">
-          <!-- ══ PROGRESS CARD ══════════════════════════════════════════════════ -->
           <div class="progress-card">
             <div class="progress-card__header">
               <h2 class="progress-card__title">Contributions</h2>
@@ -239,8 +223,16 @@
             </p>
           </div>
 
-          <!-- ══ CONTRIBUTE CTA ═════════════════════════════════════════════════ -->
-          @if (!isClosed()) {
+          @if (!isClosed() && !donationsEnabled()) {
+            <div class="donations-disabled-card" role="status">
+              <div class="donations-disabled-card__title">Donations are currently disabled</div>
+              <p class="donations-disabled-card__body">
+                The organiser must connect Stripe and add bank account details before this celebration can receive donations.
+              </p>
+            </div>
+          }
+
+          @if (donationsEnabled()) {
             <app-button
               variant="campaign"
               size="lg"
@@ -254,79 +246,77 @@
             </app-button>
           }
 
-          <!-- ══ QR CODE + SHARE (always shown; locked overlay for Free) ══════════ -->
           @if (isLoggedIn()) {
-          <div class="qr-card">
-            <div class="qr-card__body">
-              <div class="qr-card__text">
-                <h3 class="qr-card__title">Share this celebration</h3>
-                <p class="qr-card__url">{{ campaignUrl() }}</p>
-                <div class="qr-card__actions">
-                  <app-button
-                    variant="secondary"
-                    size="sm"
-                    type="button"
-                    [disabled]="!canCopyLink()"
-                    (clicked)="copyLink()"
-                  >
-                    @if (copySuccess()) {
-                      <svg class="w-4 h-4 text-success" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
-                      </svg>
-                      Copied!
-                    } @else {
-                      <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z"/>
-                        <path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.439A1.5 1.5 0 008.378 6H4.5z"/>
-                      </svg>
-                      Copy link
-                    }
-                  </app-button>
-                </div>
-              </div>
-
-              @if (c.isPro) {
-                <div class="qr-card__qr">
-                  <app-qr-code
-                    [url]="campaignUrl()"
-                    [isPro]="true"
-                    [size]="180"
-                    [filename]="c.slug"
-                  />
-                  <p class="qr-label">Scan to contribute</p>
-                </div>
-              } @else {
-                @if (canUpgradeCampaign()) {
-                  <button
-                    type="button"
-                    class="locked-pro-trigger qr-card__qr qr-card__qr--locked"
-                    (click)="navigateToUpgrade()"
-                    aria-label="Upgrade this celebration to unlock QR codes"
-                  >
-                    <app-qr-code
-                      [url]="campaignUrl()"
-                      [isPro]="false"
-                      [size]="180"
-                      [filename]="c.slug"
-                    />
-                  </button>
-                } @else {
-                  <div class="qr-card__qr qr-card__qr--locked qr-card__qr--disabled" aria-disabled="true">
-                    <app-qr-code
-                      [url]="campaignUrl()"
-                      [isPro]="false"
-                      [size]="180"
-                      [filename]="c.slug"
-                    />
+            <div class="qr-card">
+              <div class="qr-card__body">
+                <div class="qr-card__text">
+                  <h3 class="qr-card__title">Share this celebration</h3>
+                  <p class="qr-card__url">{{ campaignUrl() }}</p>
+                  <div class="qr-card__actions">
+                    <app-button
+                      variant="secondary"
+                      size="sm"
+                      type="button"
+                      [disabled]="!canCopyLink()"
+                      (clicked)="copyLink()"
+                    >
+                      @if (copySuccess()) {
+                        <svg class="w-4 h-4 text-success" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
+                        </svg>
+                        Copied!
+                      } @else {
+                        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z"/>
+                          <path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.439A1.5 1.5 0 008.378 6H4.5z"/>
+                        </svg>
+                        Copy link
+                      }
+                    </app-button>
                   </div>
+                </div>
+
+                @if (c.isPro) {
+                  <div class="qr-card__qr">
+                    <app-qr-code
+                      [url]="campaignUrl()"
+                      [isPro]="true"
+                      [size]="180"
+                      [filename]="c.slug"
+                    />
+                    <p class="qr-label">Scan to contribute</p>
+                  </div>
+                } @else {
+                  @if (canUpgradeCampaign()) {
+                    <button
+                      type="button"
+                      class="locked-pro-trigger qr-card__qr qr-card__qr--locked"
+                      (click)="navigateToUpgrade()"
+                      aria-label="Upgrade this celebration to unlock QR codes"
+                    >
+                      <app-qr-code
+                        [url]="campaignUrl()"
+                        [isPro]="false"
+                        [size]="180"
+                        [filename]="c.slug"
+                      />
+                    </button>
+                  } @else {
+                    <div class="qr-card__qr qr-card__qr--locked qr-card__qr--disabled" aria-disabled="true">
+                      <app-qr-code
+                        [url]="campaignUrl()"
+                        [isPro]="false"
+                        [size]="180"
+                        [filename]="c.slug"
+                      />
+                    </div>
+                  }
                 }
-              }
+              </div>
             </div>
-          </div>
           }
         </aside>
       </div>
-
-    </div><!-- /.campaign-page__inner -->
-  </div><!-- /.campaign-page -->
+    </div>
+  </div>
 }

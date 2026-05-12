@@ -21,6 +21,6 @@ export interface Campaign {
   fundUse?: CampaignFundUse;
   /** Stripe Connect: the organiser's connected account ID (acct_…). */
   stripeAccountId?: string | null;
-  /** True once the organiser has completed Stripe Express onboarding. */
+  /** True once the organiser can receive donations into the connected payout account. */
   stripeOnboardingComplete: boolean;
 }

@@ -2,9 +2,9 @@
  * Supabase Edge Function: stripe-connect-callback
  *
  * Called after the organiser returns from the Stripe Connect onboarding flow.
- * Retrieves the account from Stripe to check whether details_submitted is true,
- * then persists the completed status to user_profiles and syncs stripe_account_id
- * to any of the user's campaigns that do not yet have one.
+ * Retrieves the account from Stripe to check whether payouts are enabled,
+ * then persists the ready status to user_profiles and syncs stripe_account_id
+ * to the user's campaigns.
  *
  * Runtime: Deno (Supabase Edge Runtime)
  * Auth: verify_jwt = true (configured in supabase/config.toml)
@@ -87,7 +87,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── Check onboarding status with Stripe ──────────────────────────────
     const account = await stripe.accounts.retrieve(stripeAccountId);
-    const complete = account.details_submitted === true;
+    const complete = account.payouts_enabled === true;
     const accountSummary: StripeAccountSummary = {
       id: account.id,
       email: account.email ?? null,
@@ -100,26 +100,24 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     console.log(
       `[stripe-connect-callback] Account ${stripeAccountId} for user ${user.id}: ` +
-      `details_submitted=${account.details_submitted}`
+      `payouts_enabled=${account.payouts_enabled}`
     );
 
-    if (complete) {
-      // Persist completed status to user_profiles.
-      await supabaseAdmin
-        .from('user_profiles')
-        .update({ stripe_onboarding_complete: true })
-        .eq('id', user.id);
+    await supabaseAdmin
+      .from('user_profiles')
+      .update({
+        stripe_account_id: stripeAccountId,
+        stripe_onboarding_complete: complete,
+      })
+      .eq('id', user.id);
 
-      // Sync stripe_account_id (and completed flag) to any campaigns owned
-      // by this user that don't have an account linked yet.
-      await supabaseAdmin
-        .from('campaigns')
-        .update({
-          stripe_account_id:          stripeAccountId,
-          stripe_onboarding_complete: true,
-        })
-        .eq('created_by', user.id);
-    }
+    await supabaseAdmin
+      .from('campaigns')
+      .update({
+        stripe_account_id: stripeAccountId,
+        stripe_onboarding_complete: complete,
+      })
+      .eq('created_by', user.id);
 
     return respond(200, { complete, account: accountSummary });
 

@@ -38,6 +38,15 @@
         </div>
       }
 
+      @if (!donationsEnabled()) {
+        <div class="status-banner status-banner--warning" role="status">
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+          </svg>
+          Donations are currently disabled until the organiser connects Stripe and adds bank account details.
+        </div>
+      }
+
       <div class="contribute-card">
         <div class="contribute-card__header">
           <div class="contribute-card__icon" aria-hidden="true">
@@ -204,12 +213,12 @@
               type="submit"
               [fullWidth]="true"
               [loading]="paying()"
-              [disabled]="form.invalid"
+              [disabled]="form.invalid || !donationsEnabled()"
             >
               <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M2.5 4A1.5 1.5 0 001 5.5V6h18v-.5A1.5 1.5 0 0017.5 4h-15zM19 8.5H1v6A1.5 1.5 0 002.5 16h15a1.5 1.5 0 001.5-1.5v-6zM3 13.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm4.75-.75a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z" clip-rule="evenodd"/>
               </svg>
-              Pay securely with Stripe
+              {{ donationsEnabled() ? 'Pay securely with Stripe' : 'Donations unavailable' }}
             </app-button>
 
             <p class="payment-note">

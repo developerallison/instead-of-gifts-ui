@@ -369,6 +369,25 @@
   color: var(--color-text-muted, #6A8272);
 }
 
+.donations-disabled-card {
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  background: #fffbeb;
+  color: #92400e;
+  padding: 1rem 1.1rem;
+}
+
+.donations-disabled-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.donations-disabled-card__body {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 // Live badge
 
 .live-badge {
