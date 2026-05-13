@@ -61,6 +61,14 @@
   line-height: 1.2;
 }
 
+.page-header__note {
+  margin-top: 0.5rem;
+  max-width: 40rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text-muted, #6A8272);
+}
+
 // ── Stats row ───────────────────────────────────────────────────────────────
 
 .stats-row {

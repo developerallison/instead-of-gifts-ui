@@ -257,6 +257,9 @@
           <h2 class="section-header__title">Recent Activity</h2>
           <a class="activity__all" [routerLink]="['/celebrations']">See all activity</a>
         </div>
+        <p class="activity__note">
+          All payouts are processed automatically. Bank processing times may vary.
+        </p>
 
         @if (recentActivity().length === 0) {
           <p class="activity__empty">No contributions yet. Share your celebration links to get started.</p>
